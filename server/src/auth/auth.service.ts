@@ -40,12 +40,10 @@ export class AuthService {
   /**
    * @description root 계정을 생성하고 JWT 토큰을 발급한다.
    * @param {SetupDto} dto 셋업 요청 DTO
-   * @returns {Promise<{ accessToken: string; expiresIn: string }>} 액세스 토큰
+   * @returns {Promise<string>} 서명된 JWT 액세스 토큰
    * @throws {ForbiddenException} 이미 유저가 존재할 시
    */
-  async setup(
-    dto: SetupDto,
-  ): Promise<{ accessToken: string; expiresIn: string }> {
+  async setup(dto: SetupDto): Promise<string> {
     const count = await this.prisma.user.count();
     if (count > 0) throw new ForbiddenException('이미 셋업이 완료되었습니다.');
 
@@ -54,23 +52,20 @@ export class AuthService {
       data: { username: dto.username, password: hashed, role: 'ROOT' },
     });
 
-    const accessToken = this.jwtService.sign({
+    return this.jwtService.sign({
       sub: created.id,
       username: dto.username,
       role: 'ROOT',
     });
-    return { accessToken, expiresIn: this.config.jwtExpiresIn };
   }
 
   /**
    * @description 사용자 로그인 처리 및 JWT 액세스 토큰 발급
    * @param {LoginDto} dto 로그인 요청 DTO
-   * @returns {Promise<{ accessToken: string; expiresIn: string }>} 액세스 토큰과 만료 시간
+   * @returns {Promise<string>} 서명된 JWT 액세스 토큰
    * @throws {UnauthorizedException} 자격증명이 올바르지 않을 시
    */
-  async login(
-    dto: LoginDto,
-  ): Promise<{ accessToken: string; expiresIn: string }> {
+  async login(dto: LoginDto): Promise<string> {
     const user = await this.prisma.user.findUnique({
       where: { username: dto.username },
     });
@@ -80,11 +75,69 @@ export class AuthService {
     if (!isMatch)
       throw new UnauthorizedException('자격증명이 올바르지 않습니다.');
 
-    const accessToken = this.jwtService.sign({
+    return this.jwtService.sign({
       sub: user.id,
       username: user.username,
       role: user.role,
     });
-    return { accessToken, expiresIn: this.config.jwtExpiresIn };
+  }
+
+  /**
+   * @description 현재 로그인한 유저 정보를 반환한다.
+   * @param {string} sub JWT payload의 sub (유저 ID)
+   * @returns {Promise<{ id: string; username: string; role: string; avatar: string | null }>}
+   * @throws {UnauthorizedException} 유저를 찾을 수 없을 시
+   */
+  async getMe(
+    sub: string,
+  ): Promise<{
+    id: string;
+    username: string;
+    role: string;
+    avatar: string | null;
+  }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: sub },
+      select: { id: true, username: true, role: true, avatar: true },
+    });
+    if (!user) throw new UnauthorizedException('유저를 찾을 수 없습니다.');
+    return user;
+  }
+
+  /**
+   * @description httpOnly 쿠키 옵션을 반환한다.
+   * @returns {{ httpOnly: boolean; sameSite: string; secure: boolean; maxAge: number }}
+   */
+  getCookieOptions(): {
+    httpOnly: boolean;
+    sameSite: 'lax';
+    secure: boolean;
+    maxAge: number;
+  } {
+    return {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: this.config.nodeEnv === 'production',
+      maxAge: this.parseCookieMaxAge(),
+    };
+  }
+
+  /**
+   * @description JWT 만료 문자열(예: '1h', '7d')을 밀리초로 변환한다.
+   * @returns {number} 밀리초 단위 만료 시간
+   */
+  private parseCookieMaxAge(): number {
+    const raw = this.config.jwtExpiresIn ?? '1h';
+    const match = raw.match(/^(\d+)([smhd])$/);
+    if (!match) return 3600 * 1000;
+    const value = parseInt(match[1], 10);
+    const unit = match[2];
+    const multipliers: Record<string, number> = {
+      s: 1000,
+      m: 60 * 1000,
+      h: 3600 * 1000,
+      d: 86400 * 1000,
+    };
+    return value * multipliers[unit];
   }
 }

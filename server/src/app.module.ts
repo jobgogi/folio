@@ -14,6 +14,7 @@ import { SyncModule } from './sync/sync.module';
 import { BooksModule } from './books/books.module';
 import { UsersModule } from './users/users.module';
 import { validationSchema } from './config/validation.schema';
+import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 import { AppController } from './app.controller';
 
@@ -21,7 +22,7 @@ import { AppController } from './app.controller';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig],
+      load: [appConfig, databaseConfig],
       validationSchema,
     }),
     PrismaModule,
