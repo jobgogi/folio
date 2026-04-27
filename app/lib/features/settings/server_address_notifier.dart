@@ -46,11 +46,12 @@ class ServerAddressNotifier extends StateNotifier<ServerAddressState> {
   /// @description 서버 주소 연결을 테스트하고 성공 시 저장 후 다음 화면을 결정한다.
   /// @param address 서버 주소 (예: http://nas.local:3000)
   Future<void> testAndSave(String address) async {
+    final base = address.replaceAll(RegExp(r'/+$'), '');
     state = const ServerAddressLoading();
     try {
-      await _dio.get('$address/v1/health');
-      await _repository.save(address);
-      final statusRes = await _dio.get('$address/v1/auth/setup-status');
+      await _dio.get('$base/v1/health');
+      await _repository.save(base);
+      final statusRes = await _dio.get('$base/v1/auth/setup-status');
       final data = statusRes.data as Map<String, dynamic>;
       final needsSetup = data['needsSetup'] as bool;
       state = ServerAddressSuccess(

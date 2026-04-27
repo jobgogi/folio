@@ -141,6 +141,16 @@ void main() {
         // Assert
         expect(fakeRepository.saved, isNull);
       });
+
+      test('trailing slash가 포함된 주소는 제거 후 저장된다', () async {
+        // Arrange
+        dio.httpClientAdapter = _MockAdapter(needsSetup: false);
+        // Act
+        await notifier.testAndSave('http://nas.local:3000/');
+        // Assert
+        expect(notifier.state, isA<ServerAddressSuccess>());
+        expect(fakeRepository.saved, 'http://nas.local:3000');
+      });
     });
   });
 }
