@@ -27,9 +27,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   /**
    * @description 검증된 JWT payload를 반환한다.
    * @param {Record<string, unknown>} payload 디코딩된 JWT payload
-   * @returns payload 그대로 반환 (req.user에 주입됨)
+   * @returns {Record<string, unknown>} payload 그대로 반환 (req.user에 주입됨)
    */
-  validate(payload: Record<string, unknown>) {
+  validate(payload: Record<string, unknown>): Record<string, unknown> {
     return payload;
   }
 }

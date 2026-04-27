@@ -18,7 +18,7 @@ const MOCK_USER = { username: 'admin', password: 'password123' };
 export class AuthService {
   constructor(
     @Inject(authConfig.KEY)
-    private readonly authConfig: ConfigType<typeof authConfig>,
+    private readonly config: ConfigType<typeof authConfig>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -33,6 +33,6 @@ export class AuthService {
       throw new UnauthorizedException('자격증명이 올바르지 않습니다.');
     }
     const accessToken = this.jwtService.sign({ username: dto.username });
-    return { accessToken, expiresIn: this.authConfig.jwtExpiresIn };
+    return { accessToken, expiresIn: this.config.jwtExpiresIn };
   }
 }
