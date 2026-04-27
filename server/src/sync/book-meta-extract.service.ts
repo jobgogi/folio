@@ -43,7 +43,7 @@ export class BookMetaExtractService {
       const meta = type === 'PDF'
         ? await this.extractPdf(filePath)
         : await this.extractEpub(filePath);
-      return meta as BookMeta;
+      return { title: baseName, ...meta } as BookMeta;
     } catch {
       return { title: baseName };
     }
@@ -93,7 +93,7 @@ export class BookMetaExtractService {
     return {
       title: metadata?.['dc:title'] || undefined,
       author: metadata?.['dc:creator'] || undefined,
-      isbn: metadata?.['dc:identifier'] || undefined,
+      isbn: metadata?.['dc:identifier']?.replace(/^urn:isbn:/i, '') || undefined,
       publisher: metadata?.['dc:publisher'] || undefined,
       publishedAt,
       readingDirection,
