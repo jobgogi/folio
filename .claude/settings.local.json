@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout *)",
+      "Bash(flutter test *)",
+      "Bash(fvm flutter *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(gh pr *)",
+      "Bash(git pull *)",
+      "Bash(git branch *)",
+      "Bash(npm test *)",
+      "Bash(npx jest *)",
+      "Bash(npm install *)",
+      "Bash(grep -v \"^+$\")",
+      "Bash(git add *)"
+    ]
+  }
+}

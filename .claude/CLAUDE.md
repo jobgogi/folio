@@ -11,6 +11,8 @@
 5. .claude/test/rules.md       테스트 품질 규칙
 6. .claude/test/patterns.md    테스트 작성 패턴
 7. .claude/test/checklist.md   구현 전 체크리스트
+8. .claude/rules/flutter.md    Flutter 코딩 규칙
+9. .claude/rules/nestjs.md     NestJS 코딩 규칙
 
 ## 현재 작업 Phase
 .claude/phases/phase1.md 참고
@@ -23,6 +25,9 @@ develop 최신화
 → 전체 테스트 통과
 → 커밋
 → feature 브랜치 push
-→ PR 생성 후 중단   ← 머지는 절대 직접 하지 않음
-→ GitHub에서 PR 머지
+→ PR 생성 후 Claude Code 중단
+→ Claude Code가 코드 리뷰 진행 후 PR에 코멘트 남기기
+→ [APPROVE] Claude Code 중단 → 머지는 직접 진행
+→ [REQUEST CHANGES] 재작업 후 RE-REVIEW 요청 코멘트
+→ Claude Code 재리뷰 후 APPROVE → 머지는 직접 진행
 → develop 최신화 후 다음 작업

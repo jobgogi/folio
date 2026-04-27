@@ -5,14 +5,16 @@ PDF · ePub 통합 뷰어 (포트폴리오 프로젝트)
 Flutter 멀티플랫폼 앱 + NestJS 백엔드 + Synology NAS 파일 서버
 
 ## 기술 스택
-### Frontend (apps/app)
-- Flutter (Web · macOS · iOS)
+
+### Frontend (app/)
+- Flutter (Web · macOS · Android)
+- Flutter 버전 관리 : FVM
 - PDF 렌더링 : pdfx
 - ePub 렌더링 : epubx
-- 상태 관리  : Riverpod
+- 상태 관리 : Riverpod
 - HTTP 클라이언트 : Dio
 
-### Backend (apps/server)
+### Backend (server/)
 - NestJS + TypeScript
 - 파일 스트리밍 : NestJS Stream
 - 인증 : JWT
@@ -21,39 +23,74 @@ Flutter 멀티플랫폼 앱 + NestJS 백엔드 + Synology NAS 파일 서버
 ### 인프라
 - 배포 : Docker Compose → NAS
 - 원격 접근 : Tailscale
-- 모노레포 : Melos
 
 ## 명령어
+
 ### Flutter
-melos run test          전체 테스트
-melos run build:web     웹 빌드
-melos run build:macos   macOS 빌드
-flutter test            앱 테스트
+fvm flutter test        테스트 실행
+fvm flutter run -d web  웹 실행
+fvm flutter build web   웹 빌드
+fvm flutter build macos macOS 빌드
 
 ### NestJS
-npm test                백엔드 테스트
-npm run build           빌드
+npm test                테스트 실행
 npm run start:dev       개발 서버
+npm run build           빌드
 
 ### 인프라
-docker-compose up -d    NAS 서버 실행
+docker-compose up -d    서버 실행
+
+## 화면 목록
+
+### 1. 라이브러리 (메인)
+- 파일 목록 그리드/리스트
+- 최근 읽은 책
+- 파일 추가 버튼 (NAS 연결 or 로컬)
+
+### 2. 뷰어
+- PDF / ePub 렌더링 영역
+- 상단 툴바 (뒤로가기, 제목, 메뉴)
+- 하단 툴바 (페이지 이동, 진행률)
+- 북마크 버튼
+
+### 3. 설정
+- NAS 서버 주소 입력
+- 인증 정보 (JWT)
+- 테마 (라이트/다크)
+
+### 4. NAS 연결
+- 서버 주소 입력
+- 연결 테스트
+- 파일 브라우저 (NAS 디렉토리 탐색)
 
 ## 디렉토리 구조
-apps/
-├── app/
+folio/
+├── app/                        # Flutter
 │   ├── lib/
 │   │   ├── features/
-│   │   │   ├── viewer/     # PDF/ePub 뷰어
-│   │   │   ├── library/    # 파일 목록
-│   │   │   └── auth/       # 인증
+│   │   │   ├── library/        # 라이브러리 화면
+│   │   │   ├── viewer/         # 뷰어 화면
+│   │   │   ├── settings/       # 설정 화면
+│   │   │   └── nas/            # NAS 연결 화면
 │   │   ├── core/
-│   │   │   ├── api/        # Dio 클라이언트
-│   │   │   └── models/     # 공유 모델
+│   │   │   ├── api/            # Dio 클라이언트
+│   │   │   ├── models/         # 공유 모델
+│   │   │   └── detector/       # FileDetector
 │   │   └── main.dart
 │   └── test/
-└── server/
-    ├── src/
-    │   ├── files/          # 파일 스트리밍
-    │   ├── auth/           # JWT 인증
-    │   └── nas/            # NAS 연동
-    └── test/
+│       ├── core/
+│       └── features/
+├── server/                     # NestJS
+│   ├── src/
+│   │   ├── files/              # 파일 스트리밍
+│   │   ├── auth/               # JWT 인증
+│   │   └── nas/                # NAS 연동
+│   └── test/
+└── .claude/
+
+## Phase 목록
+- Phase 1 : 기반 설정 + FileDetector + NAS 클라이언트 기본 구조
+- Phase 2 : PDF 뷰어
+- Phase 3 : ePub 뷰어
+- Phase 4 : 공통 기능 (북마크, 진행률, 다크모드)
+- Phase 5 : NAS 연동 + Docker 배포
