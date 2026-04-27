@@ -6,7 +6,7 @@
  * @see AppModule
  */
 import { Inject, Injectable } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
+import type { ConfigType } from '@nestjs/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import databaseConfig from '../config/database.config';
 import { PrismaClient } from '../../prisma/generated/client';

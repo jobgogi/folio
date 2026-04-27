@@ -17,7 +17,7 @@ const mockMetaService = { extract: jest.fn() };
 const mockPrisma = {
   book: {
     findMany: jest.fn(),
-    create: jest.fn(),
+    upsert: jest.fn(),
     update: jest.fn(),
     deleteMany: jest.fn(),
   },
@@ -52,11 +52,11 @@ describe('BookSyncService', () => {
       mockScanService.scan.mockResolvedValue([scannedPdf]);
       mockPrisma.book.findMany.mockResolvedValue([]);
       mockMetaService.extract.mockResolvedValue({ title: 'Book Title' });
-      mockPrisma.book.create.mockResolvedValue({});
+      mockPrisma.book.upsert.mockResolvedValue({});
       // Act
       const result = await service.sync();
       // Assert
-      expect(mockPrisma.book.create).toHaveBeenCalledTimes(1);
+      expect(mockPrisma.book.upsert).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ added: 1, updated: 0, deleted: 0 });
     });
 
@@ -69,13 +69,13 @@ describe('BookSyncService', () => {
         author: 'Robert C. Martin',
         publisher: 'Prentice Hall',
       });
-      mockPrisma.book.create.mockResolvedValue({});
+      mockPrisma.book.upsert.mockResolvedValue({});
       // Act
       await service.sync();
       // Assert
-      expect(mockPrisma.book.create).toHaveBeenCalledWith(
+      expect(mockPrisma.book.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({
+          create: expect.objectContaining({
             title: 'Clean Code',
             author: 'Robert C. Martin',
             publisher: 'Prentice Hall',
@@ -89,13 +89,13 @@ describe('BookSyncService', () => {
       mockScanService.scan.mockResolvedValue([scannedPdf]);
       mockPrisma.book.findMany.mockResolvedValue([]);
       mockMetaService.extract.mockResolvedValue({ title: 'book' });
-      mockPrisma.book.create.mockResolvedValue({});
+      mockPrisma.book.upsert.mockResolvedValue({});
       // Act
       await service.sync();
       // Assert
-      expect(mockPrisma.book.create).toHaveBeenCalledWith(
+      expect(mockPrisma.book.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ title: 'book' }),
+          create: expect.objectContaining({ title: 'book' }),
         }),
       );
     });
