@@ -154,31 +154,6 @@ http://localhost:3000/api
 
 ---
 
-## Phase 로드맵
-
-| Phase | 내용 | 상태 |
-|-------|------|------|
-| Phase 1 | 기반 설정 — FileDetector · FileModel · NasClient · FilesModule · AuthModule | ✅ 완료 |
-| Phase 2 | PDF 뷰어 | 🔜 진행 예정 |
-| Phase 3 | ePub 뷰어 | 🔜 진행 예정 |
-| Phase 4 | 공통 기능 — 북마크 · 진행률 · 다크모드 | 🔜 진행 예정 |
-| Phase 5 | NAS 연동 + Docker 배포 | 🔜 진행 예정 |
-
----
-
-## 환경변수
-
-`server/.env.sample` 파일을 참고해 `server/.env`를 생성합니다.
-
-| 변수 | 설명 | 기본값 |
-|------|------|--------|
-| `PORT` | 서버 포트 | `3000` |
-| `NODE_ENV` | 실행 환경 | `development` |
-| `JWT_SECRET` | JWT 서명 키 (production 필수) | — |
-| `JWT_EXPIRES_IN` | 토큰 만료 시간 | `1h` |
-
----
-
 ## 라이선스
 
 개인 포트폴리오 프로젝트입니다.
