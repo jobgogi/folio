@@ -9,21 +9,34 @@ datasource db {
   provider = "postgresql"
 }
 
-model File {
+model Book {
   id           String    @id @default(uuid())
+
+  // 파일 시스템 정보
   name         String
-  type         FileType
+  type         BookType
   path         String    @unique
   size         Int
-  lastOpenedAt DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
   lastSyncAt   DateTime
 
-  @@map("files")
+  // 메타데이터
+  title        String
+  author       String?
+  isbn         String?
+  publisher    String?
+  publishedAt  DateTime?
+  thumbnail    String?
+
+  // 읽기 상태
+  lastOpenedAt DateTime?
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("books")
 }
 
-enum FileType {
+enum BookType {
   PDF
   EPUB
 }
