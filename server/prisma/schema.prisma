@@ -20,12 +20,13 @@ model Book {
   lastSyncAt   DateTime
 
   // 메타데이터
-  title        String
-  author       String?
-  isbn         String?
-  publisher    String?
-  publishedAt  DateTime?
-  thumbnail    String?
+  title            String
+  author           String?
+  isbn             String?
+  publisher        String?
+  publishedAt      DateTime?
+  thumbnail        String?
+  readingDirection ReadingDirection?
 
   // 읽기 상태
   lastOpenedAt DateTime?
@@ -39,4 +40,10 @@ model Book {
 enum BookType {
   PDF
   EPUB
+}
+
+enum ReadingDirection {
+  LTR
+  RTL
+  TTB
 }
