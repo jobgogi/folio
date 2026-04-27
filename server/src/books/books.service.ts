@@ -5,13 +5,18 @@
  * @version 1.0.0
  * @see BooksModule
  */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { Prisma } from '../../prisma/generated/client';
+import nasConfig from '../config/nas.config';
 import { PrismaService } from '../prisma/prisma.service';
 import { GetBooksQueryDto, SortOption } from './dto/get-books-query.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+
+const THUMBNAIL_ALLOWED_EXTS = ['jpg', 'jpeg', 'png'];
+const THUMBNAIL_MAX_SIZE = 5 * 1024 * 1024;
 
 const SORT_MAP: Record<SortOption, Prisma.BookOrderByWithRelationInput> = {
   recent_opened: { lastOpenedAt: 'desc' },
@@ -21,7 +26,11 @@ const SORT_MAP: Record<SortOption, Prisma.BookOrderByWithRelationInput> = {
 
 @Injectable()
 export class BooksService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(nasConfig.KEY)
+    private readonly nas: ConfigType<typeof nasConfig>,
+  ) {}
 
   /**
    * @description Book 목록을 페이징 및 정렬하여 반환한다.
@@ -111,5 +120,43 @@ export class BooksService {
       where: { id },
       data: { lastOpenedAt: new Date() },
     });
+  }
+
+  /**
+   * @description 썸네일 이미지를 업로드하고 Book에 경로를 반영한다.
+   * @param {string} id Book ID
+   * @param {Express.Multer.File} file 업로드 파일
+   * @returns {{ thumbnailPath: string }} 저장된 썸네일 경로
+   * @throws {NotFoundException} Book 미존재 시
+   * @throws {BadRequestException} 허용되지 않는 확장자 또는 5MB 초과 시
+   */
+  async uploadThumbnail(id: string, file: Express.Multer.File): Promise<{ thumbnailPath: string }> {
+    const book = await this.prisma.book.findUnique({ where: { id } });
+    if (!book) throw new NotFoundException(`Book ${id} not found`);
+
+    const ext = path.extname(file.originalname).slice(1).toLowerCase();
+    if (!THUMBNAIL_ALLOWED_EXTS.includes(ext)) {
+      throw new BadRequestException(`허용되지 않는 확장자입니다: ${ext}`);
+    }
+    if (file.size > THUMBNAIL_MAX_SIZE) {
+      throw new BadRequestException('썸네일은 5MB를 초과할 수 없습니다.');
+    }
+
+    if (book.thumbnail) {
+      await fs.rm(book.thumbnail, { force: true });
+    }
+
+    const thumbnailDir = path.join(this.nas.mountPath as string, '.thumbnails');
+    await fs.mkdir(thumbnailDir, { recursive: true });
+
+    const thumbnailPath = path.join(thumbnailDir, `${id}.${ext}`);
+    await fs.writeFile(thumbnailPath, file.buffer);
+
+    const updated = await this.prisma.book.update({
+      where: { id },
+      data: { thumbnail: thumbnailPath },
+    });
+
+    return { thumbnailPath: updated.thumbnail as string };
   }
 }

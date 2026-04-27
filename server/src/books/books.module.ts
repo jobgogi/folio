@@ -6,13 +6,15 @@
  * @see AppModule
  */
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from '../auth/auth.module';
+import nasConfig from '../config/nas.config';
 import { PrismaModule } from '../prisma/prisma.module';
 import { BooksController } from './books.controller';
 import { BooksService } from './books.service';
 
 @Module({
-  imports: [PrismaModule, AuthModule],
+  imports: [PrismaModule, AuthModule, ConfigModule.forFeature(nasConfig)],
   controllers: [BooksController],
   providers: [BooksService],
 })
