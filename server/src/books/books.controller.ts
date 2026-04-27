@@ -5,14 +5,16 @@
  * @version 1.0.0
  * @see BooksModule
  */
-import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt.guard';
 import { BooksService } from './books.service';
 import { GetBooksQueryDto } from './dto/get-books-query.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 
 @ApiTags('books')
 @Controller('v1/books')
+@UseGuards(JwtAuthGuard)
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
@@ -25,6 +27,7 @@ export class BooksController {
   @ApiOperation({ summary: 'Book 목록 조회 (페이징/정렬)' })
   @ApiResponse({ status: 200, description: 'Book 목록 반환' })
   @ApiResponse({ status: 400, description: '잘못된 쿼리 파라미터' })
+  @ApiResponse({ status: 401, description: '인증 필요' })
   findAll(@Query() query: GetBooksQueryDto) {
     return this.booksService.findAll(query);
   }
@@ -37,6 +40,7 @@ export class BooksController {
   @Get(':id')
   @ApiOperation({ summary: '단일 Book 조회' })
   @ApiResponse({ status: 200, description: 'Book 반환' })
+  @ApiResponse({ status: 401, description: '인증 필요' })
   @ApiResponse({ status: 404, description: 'Book 없음' })
   findOne(@Param('id') id: string) {
     return this.booksService.findOne(id);
@@ -51,6 +55,7 @@ export class BooksController {
   @Patch(':id')
   @ApiOperation({ summary: 'Book 메타데이터 수정' })
   @ApiResponse({ status: 200, description: '수정된 Book 반환' })
+  @ApiResponse({ status: 401, description: '인증 필요' })
   @ApiResponse({ status: 404, description: 'Book 없음' })
   update(@Param('id') id: string, @Body() dto: UpdateBookDto) {
     return this.booksService.update(id, dto);
@@ -64,6 +69,7 @@ export class BooksController {
   @Patch(':id/open')
   @ApiOperation({ summary: '마지막 열람 시각 갱신' })
   @ApiResponse({ status: 200, description: 'lastOpenedAt 갱신된 Book 반환' })
+  @ApiResponse({ status: 401, description: '인증 필요' })
   @ApiResponse({ status: 404, description: 'Book 없음' })
   open(@Param('id') id: string) {
     return this.booksService.open(id);
