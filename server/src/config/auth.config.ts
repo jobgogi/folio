@@ -7,12 +7,7 @@
  */
 import { registerAs } from '@nestjs/config';
 
-export default registerAs('auth', () => {
-  if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
-    throw new Error('JWT_SECRET 환경변수가 설정되지 않았습니다.');
-  }
-  return {
-    jwtSecret: process.env.JWT_SECRET ?? 'dev-secret',
-    jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '1h',
-  };
-});
+export default registerAs('auth', () => ({
+  jwtSecret: process.env.JWT_SECRET ?? 'dev-secret',
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '1h',
+}));
