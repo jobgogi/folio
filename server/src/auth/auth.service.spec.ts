@@ -9,10 +9,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import authConfig from '../config/auth.config';
+import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 
 const TEST_SECRET = 'test-secret';
+const mockPrisma = { user: { count: jest.fn(), create: jest.fn() } };
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -25,6 +27,7 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         { provide: authConfig.KEY, useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' } },
+        { provide: PrismaService, useValue: mockPrisma },
       ],
     }).compile();
 
