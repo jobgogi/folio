@@ -3,7 +3,11 @@ import 'package:app/core/file_detector.dart';
 import 'package:app/core/file_model.dart';
 
 class MockNasClient implements NasClient {
-  static const _files = [
+  MockNasClient({List<FileModel>? files}) : _files = files ?? _defaultFiles;
+
+  final List<FileModel> _files;
+
+  static const _defaultFiles = [
     FileModel(
       name: 'sample.pdf',
       path: '/pdf/sample.pdf',
@@ -37,9 +41,9 @@ class MockNasClient implements NasClient {
   @override
   Future<List<FileModel>> getFiles(String path) async {
     if (path == '/') return List.unmodifiable(_files);
-    if (path == '/pdf') return _files.where((f) => f.fileType == FileType.pdf).toList();
-    if (path == '/epub') return _files.where((f) => f.fileType == FileType.epub).toList();
-    return [];
+    if (path == '/pdf') return List.unmodifiable(_files.where((f) => f.fileType == FileType.pdf));
+    if (path == '/epub') return List.unmodifiable(_files.where((f) => f.fileType == FileType.epub));
+    return List.unmodifiable([]);
   }
 
   @override
