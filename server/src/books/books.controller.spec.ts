@@ -59,11 +59,6 @@ describe('BooksController', () => {
       expect(result).toEqual(paged);
     });
 
-    it('잘못된 sort 값이면 400을 반환한다', async () => {
-      // ValidationPipe가 처리하므로 DTO 유효성 검사로 커버됨
-      // 컨트롤러 레벨에서는 유효한 sort만 도달함 — DTO 테스트로 검증
-      expect(true).toBe(true);
-    });
   });
 
   describe('GET /v1/books/:id', () => {
