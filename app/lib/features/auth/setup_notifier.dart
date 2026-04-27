@@ -2,7 +2,7 @@
 /// @author 설석주 (ixymori@gmail.com)
 /// @since 2026.04.28
 /// @version 1.0.0
-/// @see ServerAddressNotifier
+/// @see AuthController
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -30,7 +30,7 @@ class SetupFailure extends SetupState {
 class SetupNotifier extends StateNotifier<SetupState> {
   SetupNotifier({required Dio dio, required String baseUrl})
       : _dio = dio,
-        _baseUrl = baseUrl,
+        _baseUrl = baseUrl.replaceAll(RegExp(r'/+$'), ''),
         super(const SetupIdle());
 
   final Dio _dio;

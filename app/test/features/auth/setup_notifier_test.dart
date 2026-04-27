@@ -106,6 +106,23 @@ void main() {
         expect(notifier.state, isA<SetupSuccess>());
       });
 
+      test('trailing slash가 포함된 baseUrl도 정상 처리된다', () async {
+        // Arrange
+        final notifierWithSlash = SetupNotifier(
+          dio: dio,
+          baseUrl: 'http://nas.local:3000/',
+        );
+        dio.httpClientAdapter = _MockAdapter(statusCode: 201);
+        // Act
+        await notifierWithSlash.submit(
+          username: 'admin',
+          password: 'password123',
+          confirmPassword: 'password123',
+        );
+        // Assert
+        expect(notifierWithSlash.state, isA<SetupSuccess>());
+      });
+
       test('API 호출 실패이면 failure 상태가 된다', () async {
         // Arrange
         dio.httpClientAdapter = _MockAdapter(throwError: true);
