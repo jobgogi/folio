@@ -93,7 +93,6 @@ class LibraryNotifier extends StateNotifier<LibraryState> {
       );
     } on DioException {
       _currentPage--;
-      state = const LibraryFailure('책 목록을 불러오는데 실패했습니다.');
     }
   }
 

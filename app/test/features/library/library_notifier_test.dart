@@ -133,6 +133,18 @@ void main() {
         // Assert
         expect((notifier.state as LibraryLoaded).books.length, 4);
       });
+
+      test('loadMore 실패 시 기존 목록이 유지된다', () async {
+        // Arrange
+        dio.httpClientAdapter = _MockAdapter(booksPerPage: 2, hasMore: true);
+        await notifier.fetch(BookSort.name);
+        dio.httpClientAdapter = _MockAdapter(throwOnFetch: true);
+        // Act
+        await notifier.loadMore();
+        // Assert
+        expect(notifier.state, isA<LibraryLoaded>());
+        expect((notifier.state as LibraryLoaded).books.length, 2);
+      });
     });
 
     group('sync', () {
