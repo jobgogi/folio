@@ -16,13 +16,14 @@ describe('GetBooksQueryDto', () => {
     expect(errors).toHaveLength(0);
   });
 
-  it('유효한 sort 값이면 에러가 없다', async () => {
-    for (const sort of ['recent_opened', 'name', 'recent_added']) {
+  it.each(['recent_opened', 'name', 'recent_added'])(
+    '유효한 sort 값 "%s"이면 에러가 없다',
+    async (sort) => {
       const dto = plainToInstance(GetBooksQueryDto, { sort });
       const errors = await validate(dto);
       expect(errors).toHaveLength(0);
-    }
-  });
+    },
+  );
 
   it('잘못된 sort 값이면 유효성 검사에 실패한다', async () => {
     const dto = plainToInstance(GetBooksQueryDto, { sort: 'invalid_sort' });
