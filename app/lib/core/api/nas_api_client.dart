@@ -1,3 +1,8 @@
+/// @description Dio 기반 NAS 서버 통신 클라이언트 구현체
+/// @author 설석주 (ixymori@gmail.com)
+/// @since 2026.04.27
+/// @version 1.0.0
+/// @see NasClient, MockNasClient
 import 'package:dio/dio.dart';
 import 'package:app/core/api/nas_client.dart';
 import 'package:app/core/file_model.dart';
@@ -26,6 +31,8 @@ class NasApiClient implements NasClient {
   bool get hasAuthInterceptor =>
       _dio.interceptors.any((i) => i is InterceptorsWrapper);
 
+  /// @description NAS 서버 연결 상태를 확인한다.
+  /// @returns [bool] 연결 성공 여부 (예외 발생 시 false 반환)
   Future<bool> ping() async {
     try {
       final response = await _dio.get('/health');
@@ -35,6 +42,10 @@ class NasApiClient implements NasClient {
     }
   }
 
+  /// @description 경로에 해당하는 파일 목록을 서버에서 조회한다.
+  /// @param path NAS 디렉토리 경로
+  /// @returns [List<FileModel>] 파일 목록
+  /// @throws [NasClientException] 네트워크 오류 발생 시
   @override
   Future<List<FileModel>> getFiles(String path) async {
     try {
@@ -46,6 +57,10 @@ class NasApiClient implements NasClient {
     }
   }
 
+  /// @description id에 해당하는 단일 파일 정보를 서버에서 조회한다.
+  /// @param id 파일 고유 식별자
+  /// @returns [FileModel?] 파일 정보, 404 응답 시 null
+  /// @throws [NasClientException] 네트워크 오류 발생 시
   @override
   Future<FileModel?> getFile(String id) async {
     try {

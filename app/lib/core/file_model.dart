@@ -1,3 +1,8 @@
+/// @description NAS에서 가져온 파일 정보를 담는 공통 모델
+/// @author 설석주 (ixymori@gmail.com)
+/// @since 2026.04.27
+/// @version 1.0.0
+/// @see FileDetector
 import 'package:app/core/file_detector.dart';
 
 class FileModel {
@@ -15,6 +20,9 @@ class FileModel {
     this.lastOpenedAt,
   });
 
+  /// @description JSON Map으로부터 FileModel을 생성한다.
+  /// @param json 서버 응답 JSON Map
+  /// @returns [FileModel] 파싱된 파일 모델
   factory FileModel.fromJson(Map<String, dynamic> json) {
     return FileModel(
       id: json['id'] as String,
@@ -27,6 +35,8 @@ class FileModel {
     );
   }
 
+  /// @description FileModel을 JSON Map으로 직렬화한다.
+  /// @returns [Map<String, dynamic>] 직렬화된 JSON Map
   Map<String, dynamic> toJson() {
     return {
       'id': id,
