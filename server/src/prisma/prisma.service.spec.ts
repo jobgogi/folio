@@ -6,7 +6,6 @@
  * @see PrismaService
  */
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConfigService } from '@nestjs/config';
 
 jest.mock('@prisma/adapter-pg', () => ({
   PrismaPg: jest.fn().mockImplementation(() => ({})),
@@ -18,6 +17,7 @@ jest.mock('../../prisma/generated/client', () => ({
   },
 }));
 
+import databaseConfig from '../config/database.config';
 import { PrismaService } from './prisma.service';
 
 describe('PrismaService', () => {
@@ -28,8 +28,8 @@ describe('PrismaService', () => {
       providers: [
         PrismaService,
         {
-          provide: ConfigService,
-          useValue: { get: jest.fn().mockReturnValue('postgresql://test:test@localhost:5432/test') },
+          provide: databaseConfig.KEY,
+          useValue: { url: 'postgresql://test:test@localhost:5432/test' },
         },
       ],
     }).compile();
@@ -37,8 +37,7 @@ describe('PrismaService', () => {
     service = module.get<PrismaService>(PrismaService);
   });
 
-  it('ConfigService로부터 DATABASE_URL을 읽어 인스턴스를 생성한다', () => {
-    // Assert
+  it('databaseConfig로부터 url을 읽어 인스턴스를 생성한다', () => {
     expect(service).toBeInstanceOf(PrismaService);
   });
 });
