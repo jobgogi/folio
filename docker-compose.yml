@@ -23,6 +23,7 @@ services:
       - ./server/.env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      NAS_MOUNT_PATH: /nas
     volumes:
       - ${NAS_MOUNT_PATH}:/nas:ro
     ports:
