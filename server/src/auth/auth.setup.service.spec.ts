@@ -63,14 +63,19 @@ describe('AuthService - setup', () => {
   });
 
   describe('setup', () => {
-    it('root 계정을 생성하고 액세스 토큰과 expiresIn을 반환한다', async () => {
+    it('root 계정을 생성하고 JWT 토큰 문자열을 반환한다', async () => {
+      // Arrange
       mockPrisma.user.count.mockResolvedValue(0);
-      mockPrisma.user.create.mockResolvedValue({ id: 'root-uuid', username: 'admin' });
+      mockPrisma.user.create.mockResolvedValue({
+        id: 'root-uuid',
+        username: 'admin',
+      });
       const dto: SetupDto = { username: 'admin', password: 'password123' };
+      // Act
       const result = await service.setup(dto);
-      expect(result).toHaveProperty('accessToken');
-      expect(typeof result.accessToken).toBe('string');
-      expect(result).toHaveProperty('expiresIn');
+      // Assert
+      expect(typeof result).toBe('string');
+      expect(result.split('.')).toHaveLength(3);
     });
 
     it('이미 유저가 있으면 ForbiddenException을 던진다', async () => {
@@ -81,7 +86,10 @@ describe('AuthService - setup', () => {
 
     it('저장되는 password는 bcrypt로 해싱되어 원문과 다르다', async () => {
       mockPrisma.user.count.mockResolvedValue(0);
-      mockPrisma.user.create.mockResolvedValue({ id: 'root-uuid', username: 'admin' });
+      mockPrisma.user.create.mockResolvedValue({
+        id: 'root-uuid',
+        username: 'admin',
+      });
       const dto: SetupDto = { username: 'admin', password: 'password123' };
       await service.setup(dto);
       const savedPassword =
@@ -91,7 +99,10 @@ describe('AuthService - setup', () => {
 
     it('생성되는 계정의 role은 ROOT이다', async () => {
       mockPrisma.user.count.mockResolvedValue(0);
-      mockPrisma.user.create.mockResolvedValue({ id: 'root-uuid', username: 'admin' });
+      mockPrisma.user.create.mockResolvedValue({
+        id: 'root-uuid',
+        username: 'admin',
+      });
       const dto: SetupDto = { username: 'admin', password: 'password123' };
       await service.setup(dto);
       const savedRole = mockPrisma.user.create.mock.calls[0][0].data.role;
@@ -100,11 +111,14 @@ describe('AuthService - setup', () => {
 
     it('반환되는 JWT payload에 role: ROOT가 포함된다', async () => {
       mockPrisma.user.count.mockResolvedValue(0);
-      mockPrisma.user.create.mockResolvedValue({ id: 'root-uuid', username: 'admin' });
+      mockPrisma.user.create.mockResolvedValue({
+        id: 'root-uuid',
+        username: 'admin',
+      });
       const dto: SetupDto = { username: 'admin', password: 'password123' };
-      const result = await service.setup(dto);
+      const token = await service.setup(dto);
       const payload = JSON.parse(
-        Buffer.from(result.accessToken.split('.')[1], 'base64').toString(),
+        Buffer.from(token.split('.')[1], 'base64').toString(),
       );
       expect(payload.role).toBe('ROOT');
     });
