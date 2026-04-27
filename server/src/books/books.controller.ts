@@ -89,7 +89,7 @@ export class BooksController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: '썸네일 업로드' })
   @ApiResponse({ status: 201, description: '업로드 성공' })
-  @ApiResponse({ status: 400, description: '허용되지 않는 확장자 또는 5MB 초과' })
+  @ApiResponse({ status: 400, description: '파일 없음, 허용되지 않는 확장자 또는 5MB 초과' })
   @ApiResponse({ status: 401, description: '인증 필요' })
   @ApiResponse({ status: 404, description: 'Book 없음' })
   uploadThumbnail(

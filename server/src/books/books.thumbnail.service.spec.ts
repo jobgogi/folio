@@ -50,9 +50,7 @@ describe('BooksService — uploadThumbnail', () => {
     mockPrisma.book.findUnique.mockResolvedValue({ id: 'uuid-1', title: 'Clean Code', thumbnail: null });
     mockFs.mkdir.mockResolvedValue(undefined);
     mockFs.writeFile.mockResolvedValue(undefined);
-    mockPrisma.book.update.mockResolvedValue({
-      id: 'uuid-1', thumbnail: `${MOCK_NAS_PATH}/.thumbnails/uuid-1.jpg`,
-    });
+    mockPrisma.book.update.mockResolvedValue({});
     // Act
     const result = await service.uploadThumbnail('uuid-1', file);
     // Assert
@@ -65,9 +63,7 @@ describe('BooksService — uploadThumbnail', () => {
     mockPrisma.book.findUnique.mockResolvedValue({ id: 'uuid-1', title: 'Clean Code', thumbnail: null });
     mockFs.mkdir.mockResolvedValue(undefined);
     mockFs.writeFile.mockResolvedValue(undefined);
-    mockPrisma.book.update.mockResolvedValue({
-      id: 'uuid-1', thumbnail: `${MOCK_NAS_PATH}/.thumbnails/uuid-1.png`,
-    });
+    mockPrisma.book.update.mockResolvedValue({});
     // Act
     const result = await service.uploadThumbnail('uuid-1', file);
     // Assert
@@ -100,9 +96,7 @@ describe('BooksService — uploadThumbnail', () => {
     mockFs.rm.mockResolvedValue(undefined);
     mockFs.mkdir.mockResolvedValue(undefined);
     mockFs.writeFile.mockResolvedValue(undefined);
-    mockPrisma.book.update.mockResolvedValue({
-      id: 'uuid-1', thumbnail: `${MOCK_NAS_PATH}/.thumbnails/uuid-1.png`,
-    });
+    mockPrisma.book.update.mockResolvedValue({});
     // Act
     const result = await service.uploadThumbnail('uuid-1', file);
     // Assert
