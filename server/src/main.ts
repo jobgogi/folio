@@ -1,3 +1,10 @@
+/**
+ * @description 애플리케이션 진입점 — NestJS 서버 부트스트랩
+ * @author 설석주 (ixymori@gmail.com)
+ * @since 2026.04.27
+ * @version 1.0.0
+ * @see AppModule
+ */
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';

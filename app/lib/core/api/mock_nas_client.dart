@@ -51,7 +51,7 @@ class MockNasClient implements NasClient {
   }
 
   /// @description path로 단일 파일을 조회한다.
-  /// @param id 파일 경로
+  /// @param id 파일 고유 식별자
   /// @returns [FileModel?] 파일 정보, 없으면 null
   @override
   Future<FileModel?> getFile(String id) async {
