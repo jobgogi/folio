@@ -23,15 +23,12 @@ class _MockAdapter implements HttpClientAdapter {
   final bool throwOnLogin;
   final bool throwOnMe;
 
-  int _callCount = 0;
-
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
     Future<dynamic>? cancelFuture,
   ) async {
-    _callCount++;
     final isMe = options.path.contains('/me');
 
     if (isMe) {
