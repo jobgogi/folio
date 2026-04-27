@@ -50,11 +50,12 @@ export class AuthService {
     if (count > 0) throw new ForbiddenException('이미 셋업이 완료되었습니다.');
 
     const hashed = await bcrypt.hash(dto.password, 10);
-    await this.prisma.user.create({
+    const created = await this.prisma.user.create({
       data: { username: dto.username, password: hashed, role: 'ROOT' },
     });
 
     const accessToken = this.jwtService.sign({
+      sub: created.id,
       username: dto.username,
       role: 'ROOT',
     });
@@ -80,6 +81,7 @@ export class AuthService {
       throw new UnauthorizedException('자격증명이 올바르지 않습니다.');
 
     const accessToken = this.jwtService.sign({
+      sub: user.id,
       username: user.username,
       role: user.role,
     });

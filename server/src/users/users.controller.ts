@@ -85,8 +85,8 @@ export class UsersController {
   @ApiResponse({ status: 403, description: '권한 없음' })
   @ApiResponse({ status: 404, description: '유저 미존재' })
   deleteUser(@Param('id') id: string, @Req() req: Request) {
-    const requester = req.user as { id: string };
-    return this.usersService.deleteUser(id, requester.id);
+    const requester = req.user as { sub: string };
+    return this.usersService.deleteUser(id, requester.sub);
   }
 
   /**

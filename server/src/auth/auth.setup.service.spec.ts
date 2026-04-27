@@ -65,7 +65,7 @@ describe('AuthService - setup', () => {
   describe('setup', () => {
     it('root 계정을 생성하고 액세스 토큰과 expiresIn을 반환한다', async () => {
       mockPrisma.user.count.mockResolvedValue(0);
-      mockPrisma.user.create.mockResolvedValue({ username: 'admin' });
+      mockPrisma.user.create.mockResolvedValue({ id: 'root-uuid', username: 'admin' });
       const dto: SetupDto = { username: 'admin', password: 'password123' };
       const result = await service.setup(dto);
       expect(result).toHaveProperty('accessToken');
@@ -81,7 +81,7 @@ describe('AuthService - setup', () => {
 
     it('저장되는 password는 bcrypt로 해싱되어 원문과 다르다', async () => {
       mockPrisma.user.count.mockResolvedValue(0);
-      mockPrisma.user.create.mockResolvedValue({ username: 'admin' });
+      mockPrisma.user.create.mockResolvedValue({ id: 'root-uuid', username: 'admin' });
       const dto: SetupDto = { username: 'admin', password: 'password123' };
       await service.setup(dto);
       const savedPassword =
@@ -91,7 +91,7 @@ describe('AuthService - setup', () => {
 
     it('생성되는 계정의 role은 ROOT이다', async () => {
       mockPrisma.user.count.mockResolvedValue(0);
-      mockPrisma.user.create.mockResolvedValue({ username: 'admin' });
+      mockPrisma.user.create.mockResolvedValue({ id: 'root-uuid', username: 'admin' });
       const dto: SetupDto = { username: 'admin', password: 'password123' };
       await service.setup(dto);
       const savedRole = mockPrisma.user.create.mock.calls[0][0].data.role;
@@ -100,7 +100,7 @@ describe('AuthService - setup', () => {
 
     it('반환되는 JWT payload에 role: ROOT가 포함된다', async () => {
       mockPrisma.user.count.mockResolvedValue(0);
-      mockPrisma.user.create.mockResolvedValue({ username: 'admin' });
+      mockPrisma.user.create.mockResolvedValue({ id: 'root-uuid', username: 'admin' });
       const dto: SetupDto = { username: 'admin', password: 'password123' };
       const result = await service.setup(dto);
       const payload = JSON.parse(

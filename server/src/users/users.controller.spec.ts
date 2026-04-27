@@ -29,7 +29,7 @@ const mockUsersService = {
 
 class MockJwtAuthGuard implements CanActivate {
   static mockUser: Record<string, unknown> = {
-    id: 'uuid-1',
+    sub: 'uuid-1',
     username: 'admin',
     role: 'ROOT',
   };
@@ -66,7 +66,7 @@ describe('UsersController', () => {
     it('ROOT 권한으로 유저를 생성한다', async () => {
       // Arrange
       MockJwtAuthGuard.mockUser = {
-        id: 'uuid-root',
+        sub: 'uuid-root',
         username: 'admin',
         role: 'ROOT',
       };
@@ -85,7 +85,7 @@ describe('UsersController', () => {
     it('USER 권한으로 유저 생성 요청 시 403을 반환한다', async () => {
       // Arrange
       MockJwtAuthGuard.mockUser = {
-        id: 'uuid-1',
+        sub: 'uuid-1',
         username: 'user1',
         role: 'USER',
       };
@@ -101,7 +101,7 @@ describe('UsersController', () => {
     it('ROOT 권한으로 유저 목록을 반환한다', async () => {
       // Arrange
       MockJwtAuthGuard.mockUser = {
-        id: 'uuid-root',
+        sub: 'uuid-root',
         username: 'admin',
         role: 'ROOT',
       };
@@ -116,7 +116,7 @@ describe('UsersController', () => {
     it('USER 권한으로 목록 조회 시 403을 반환한다', async () => {
       // Arrange
       MockJwtAuthGuard.mockUser = {
-        id: 'uuid-1',
+        sub: 'uuid-1',
         username: 'user1',
         role: 'USER',
       };
