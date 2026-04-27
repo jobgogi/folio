@@ -161,4 +161,49 @@ describe('AuthService', () => {
       );
     });
   });
+
+  describe('getCookieOptions', () => {
+    it('개발 환경에서는 secure: false를 반환한다', async () => {
+      // Arrange
+      const module = await Test.createTestingModule({
+        imports: [JwtModule.register({ secret: TEST_SECRET })],
+        providers: [
+          AuthService,
+          {
+            provide: authConfig.KEY,
+            useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h', nodeEnv: 'development' },
+          },
+          { provide: PrismaService, useValue: mockPrisma },
+        ],
+      }).compile();
+      const devService = module.get<AuthService>(AuthService);
+      // Act
+      const options = devService.getCookieOptions();
+      // Assert
+      expect(options.secure).toBe(false);
+      expect(options.httpOnly).toBe(true);
+      expect(options.sameSite).toBe('lax');
+      expect(typeof options.maxAge).toBe('number');
+    });
+
+    it('프로덕션 환경에서는 secure: true를 반환한다', async () => {
+      // Arrange
+      const module = await Test.createTestingModule({
+        imports: [JwtModule.register({ secret: TEST_SECRET })],
+        providers: [
+          AuthService,
+          {
+            provide: authConfig.KEY,
+            useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h', nodeEnv: 'production' },
+          },
+          { provide: PrismaService, useValue: mockPrisma },
+        ],
+      }).compile();
+      const prodService = module.get<AuthService>(AuthService);
+      // Act
+      const options = prodService.getCookieOptions();
+      // Assert
+      expect(options.secure).toBe(true);
+    });
+  });
 });
