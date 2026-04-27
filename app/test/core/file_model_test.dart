@@ -82,6 +82,40 @@ void main() {
         );
         expect(a, isNot(b));
       });
+
+      test('type이 다르면 동등하지 않다', () {
+        final a = FileModel(
+          id: 'file-001',
+          name: 'book.pdf',
+          type: FileType.pdf,
+          path: '/nas/docs/book.pdf',
+        );
+        final b = FileModel(
+          id: 'file-001',
+          name: 'book.pdf',
+          type: FileType.epub,
+          path: '/nas/docs/book.pdf',
+        );
+        expect(a, isNot(b));
+      });
+
+      test('lastOpenedAt이 다르면 동등하지 않다', () {
+        final a = FileModel(
+          id: 'file-001',
+          name: 'book.pdf',
+          type: FileType.pdf,
+          path: '/nas/docs/book.pdf',
+          lastOpenedAt: DateTime(2026, 4, 27, 10, 0),
+        );
+        final b = FileModel(
+          id: 'file-001',
+          name: 'book.pdf',
+          type: FileType.pdf,
+          path: '/nas/docs/book.pdf',
+          lastOpenedAt: DateTime(2026, 4, 27, 12, 0),
+        );
+        expect(a, isNot(b));
+      });
     });
 
     group('JSON 변환', () {
@@ -135,6 +169,17 @@ void main() {
           'type': 'pdf',
           'path': '/nas/docs/book.pdf',
           'lastOpenedAt': null,
+        };
+        expect(FileModel.fromJson(json).toJson(), json);
+      });
+
+      test('lastOpenedAt이 있는 fromJson → toJson 왕복 변환이 일치한다', () {
+        final json = {
+          'id': 'file-002',
+          'name': 'book.pdf',
+          'type': 'pdf',
+          'path': '/nas/docs/book.pdf',
+          'lastOpenedAt': '2026-04-27T10:00:00.000',
         };
         expect(FileModel.fromJson(json).toJson(), json);
       });
