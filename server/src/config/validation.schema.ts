@@ -17,4 +17,5 @@ export const validationSchema = Joi.object({
   }),
   JWT_EXPIRES_IN: Joi.string().default('1h'),
   DATABASE_URL: Joi.string().required(),
+  NAS_MOUNT_PATH: Joi.string().required(),
 });
