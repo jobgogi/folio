@@ -33,6 +33,8 @@ describe('JwtAuthGuard', () => {
   let jwtService: JwtService;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         PassportModule,
