@@ -159,4 +159,24 @@ export class BooksService {
 
     return { thumbnailPath };
   }
+
+  /**
+   * @description 썸네일 이미지를 읽어 버퍼와 확장자를 반환한다.
+   * @param {string} id Book ID
+   * @returns {{ buffer: Buffer; ext: string }} 파일 버퍼와 확장자
+   * @throws {NotFoundException} Book 미존재, 썸네일 없음, 파일 없음 시
+   */
+  async downloadThumbnail(id: string): Promise<{ buffer: Buffer; ext: string }> {
+    const book = await this.prisma.book.findUnique({ where: { id } });
+    if (!book) throw new NotFoundException(`Book ${id} not found`);
+    if (!book.thumbnail) throw new NotFoundException('썸네일이 없습니다.');
+
+    try {
+      const buffer = await fs.readFile(book.thumbnail);
+      const ext = path.extname(book.thumbnail).slice(1).toLowerCase();
+      return { buffer, ext };
+    } catch {
+      throw new NotFoundException('썸네일 파일을 찾을 수 없습니다.');
+    }
+  }
 }
