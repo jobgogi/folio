@@ -7,6 +7,7 @@
  */
 import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -16,7 +17,10 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [JwtModule.register({ secret: 'test-secret', signOptions: { expiresIn: '1h' } })],
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true }),
+        JwtModule.register({ secret: 'test-secret', signOptions: { expiresIn: '1h' } }),
+      ],
       providers: [AuthService],
     }).compile();
 
