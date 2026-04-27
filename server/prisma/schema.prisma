@@ -10,29 +10,29 @@ datasource db {
 }
 
 model Book {
-  id           String    @id @default(uuid())
+  id               String            @id @default(uuid())
 
   // 파일 시스템 정보
-  name         String
-  type         BookType
-  path         String    @unique
-  size         Int
-  lastSyncAt   DateTime
+  name             String
+  type             BookType
+  path             String            @unique
+  size             Int
+  lastSyncAt       DateTime          @map("last_sync_at")
 
   // 메타데이터
   title            String
   author           String?
   isbn             String?
   publisher        String?
-  publishedAt      DateTime?
+  publishedAt      DateTime?         @map("published_at")
   thumbnail        String?
-  readingDirection ReadingDirection?
+  readingDirection ReadingDirection? @map("reading_direction")
 
   // 읽기 상태
-  lastOpenedAt DateTime?
+  lastOpenedAt     DateTime?         @map("last_opened_at")
 
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt      @map("updated_at")
 
   @@map("books")
 }
@@ -40,10 +40,14 @@ model Book {
 enum BookType {
   PDF
   EPUB
+
+  @@map("book_type")
 }
 
 enum ReadingDirection {
   LTR
   RTL
   TTB
+
+  @@map("reading_direction")
 }
