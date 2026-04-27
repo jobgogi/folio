@@ -47,10 +47,10 @@ export class AuthService {
 
     const hashed = await bcrypt.hash(dto.password, 10);
     await this.prisma.user.create({
-      data: { username: dto.username, password: hashed },
+      data: { username: dto.username, password: hashed, role: 'ROOT' },
     });
 
-    const accessToken = this.jwtService.sign({ username: dto.username });
+    const accessToken = this.jwtService.sign({ username: dto.username, role: 'ROOT' });
     return { accessToken, expiresIn: this.config.jwtExpiresIn };
   }
 

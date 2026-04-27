@@ -81,5 +81,23 @@ describe('AuthService - setup', () => {
       const savedPassword = mockPrisma.user.create.mock.calls[0][0].data.password;
       expect(savedPassword).not.toBe('password123');
     });
+
+    it('생성되는 계정의 role은 ROOT이다', async () => {
+      mockPrisma.user.count.mockResolvedValue(0);
+      mockPrisma.user.create.mockResolvedValue({ username: 'admin' });
+      const dto: SetupDto = { username: 'admin', password: 'password123' };
+      await service.setup(dto);
+      const savedRole = mockPrisma.user.create.mock.calls[0][0].data.role;
+      expect(savedRole).toBe('ROOT');
+    });
+
+    it('반환되는 JWT payload에 role: ROOT가 포함된다', async () => {
+      mockPrisma.user.count.mockResolvedValue(0);
+      mockPrisma.user.create.mockResolvedValue({ username: 'admin' });
+      const dto: SetupDto = { username: 'admin', password: 'password123' };
+      const result = await service.setup(dto);
+      const payload = JSON.parse(Buffer.from(result.accessToken.split('.')[1], 'base64').toString());
+      expect(payload.role).toBe('ROOT');
+    });
   });
 });

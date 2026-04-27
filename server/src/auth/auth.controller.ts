@@ -35,6 +35,7 @@ export class AuthController {
   @Post('setup')
   @ApiOperation({ summary: 'root 계정 생성 (최초 1회)' })
   @ApiResponse({ status: 201, description: '토큰 발급 성공' })
+  @ApiResponse({ status: 400, description: 'DTO 유효성 검사 실패' })
   @ApiResponse({ status: 403, description: '이미 셋업 완료' })
   setup(@Body() dto: SetupDto): Promise<{ accessToken: string; expiresIn: string }> {
     return this.authService.setup(dto);
