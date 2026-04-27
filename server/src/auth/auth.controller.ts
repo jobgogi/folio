@@ -60,11 +60,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ message: string }> {
     const token = await this.authService.setup(dto);
-    res.cookie(COOKIE_NAME, token, {
-      httpOnly: true,
-      sameSite: 'lax',
-      maxAge: this.authService.getCookieMaxAge(),
-    });
+    res.cookie(COOKIE_NAME, token, this.authService.getCookieOptions());
     return { message: 'ok' };
   }
 
@@ -83,11 +79,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ message: string }> {
     const token = await this.authService.login(dto);
-    res.cookie(COOKIE_NAME, token, {
-      httpOnly: true,
-      sameSite: 'lax',
-      maxAge: this.authService.getCookieMaxAge(),
-    });
+    res.cookie(COOKIE_NAME, token, this.authService.getCookieOptions());
     return { message: 'ok' };
   }
 
@@ -100,7 +92,10 @@ export class AuthController {
   @ApiOperation({ summary: '로그아웃' })
   @ApiResponse({ status: 201, description: '로그아웃 성공' })
   logout(@Res({ passthrough: true }) res: Response): { message: string } {
-    res.cookie(COOKIE_NAME, '', { httpOnly: true, maxAge: 0 });
+    res.cookie(COOKIE_NAME, '', {
+      ...this.authService.getCookieOptions(),
+      maxAge: 0,
+    });
     return { message: 'ok' };
   }
 

@@ -24,7 +24,9 @@ const mockAuthService = {
   setup: jest.fn(),
   login: jest.fn(),
   getMe: jest.fn(),
-  getCookieMaxAge: jest.fn().mockReturnValue(3600 * 1000),
+  getCookieOptions: jest
+    .fn()
+    .mockReturnValue({ httpOnly: true, sameSite: 'lax', secure: false, maxAge: 3600 * 1000 }),
 };
 
 describe('AuthController — httpOnly 쿠키', () => {

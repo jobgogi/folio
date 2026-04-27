@@ -105,10 +105,28 @@ export class AuthService {
   }
 
   /**
-   * @description JWT 토큰 만료 시간(ms)을 반환한다. 쿠키 maxAge 설정에 사용된다.
+   * @description httpOnly 쿠키 옵션을 반환한다.
+   * @returns {{ httpOnly: boolean; sameSite: string; secure: boolean; maxAge: number }}
+   */
+  getCookieOptions(): {
+    httpOnly: boolean;
+    sameSite: 'lax';
+    secure: boolean;
+    maxAge: number;
+  } {
+    return {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: this.config.nodeEnv === 'production',
+      maxAge: this.parseCookieMaxAge(),
+    };
+  }
+
+  /**
+   * @description JWT 만료 문자열(예: '1h', '7d')을 밀리초로 변환한다.
    * @returns {number} 밀리초 단위 만료 시간
    */
-  getCookieMaxAge(): number {
+  private parseCookieMaxAge(): number {
     const raw = this.config.jwtExpiresIn ?? '1h';
     const match = raw.match(/^(\d+)([smhd])$/);
     if (!match) return 3600 * 1000;
