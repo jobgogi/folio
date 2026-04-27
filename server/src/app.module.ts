@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import { FilesModule } from './files/files.module';
 import { AuthModule } from './auth/auth.module';
 import { validationSchema } from './config/validation.schema';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -17,5 +18,6 @@ import { validationSchema } from './config/validation.schema';
     FilesModule,
     AuthModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
