@@ -14,9 +14,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { SetupDto } from './dto/setup.dto';
 
-// Phase 1 임시 구현 — Phase 3 Task 3에서 bcrypt + DB 조회로 교체 예정
-const MOCK_USER = { username: 'admin', password: 'password123' };
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -61,10 +58,13 @@ export class AuthService {
    * @throws {UnauthorizedException} 자격증명이 올바르지 않을 시
    */
   async login(dto: LoginDto): Promise<{ accessToken: string; expiresIn: string }> {
-    if (dto.username !== MOCK_USER.username || dto.password !== MOCK_USER.password) {
-      throw new UnauthorizedException('자격증명이 올바르지 않습니다.');
-    }
-    const accessToken = this.jwtService.sign({ username: dto.username });
+    const user = await this.prisma.user.findUnique({ where: { username: dto.username } });
+    if (!user) throw new UnauthorizedException('자격증명이 올바르지 않습니다.');
+
+    const isMatch = await bcrypt.compare(dto.password, user.password);
+    if (!isMatch) throw new UnauthorizedException('자격증명이 올바르지 않습니다.');
+
+    const accessToken = this.jwtService.sign({ username: user.username, role: user.role });
     return { accessToken, expiresIn: this.config.jwtExpiresIn };
   }
 }
