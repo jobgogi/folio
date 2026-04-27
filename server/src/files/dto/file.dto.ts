@@ -1,3 +1,10 @@
+/**
+ * @description 파일 정보 응답 DTO
+ * @author 설석주 (ixymori@gmail.com)
+ * @since 2026.04.27
+ * @version 1.0.0
+ * @see FilesService
+ */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsIn, IsOptional, IsString } from 'class-validator';
 
