@@ -5,14 +5,16 @@
  * @version 1.0.0
  * @see BooksModule
  */
-import { Body, Controller, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Patch, Query, Res, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import type { Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { BooksService } from './books.service';
 import { GetBooksQueryDto } from './dto/get-books-query.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 
 @ApiTags('books')
+@ApiBearerAuth()
 @Controller('v1/books')
 @UseGuards(JwtAuthGuard)
 export class BooksController {
@@ -73,5 +75,22 @@ export class BooksController {
   @ApiResponse({ status: 404, description: 'Book 없음' })
   open(@Param('id') id: string) {
     return this.booksService.open(id);
+  }
+
+  /**
+   * @description 책 파일을 다운로드한다.
+   * @param {string} id Book ID
+   * @param {Response} res HTTP 응답 객체
+   */
+  @Get(':id/download')
+  @ApiOperation({ summary: '책 파일 다운로드' })
+  @ApiResponse({ status: 200, description: '파일 스트림 반환' })
+  @ApiResponse({ status: 401, description: '인증 필요' })
+  @ApiResponse({ status: 404, description: 'Book 없음 또는 파일 없음' })
+  async download(@Param('id') id: string, @Res() res: Response) {
+    const { buffer, contentType, filename } = await this.booksService.download(id);
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(buffer);
   }
 }

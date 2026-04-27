@@ -20,8 +20,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Request, Response } from 'express';
+import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import type { Request, Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { UserRole } from '../../prisma/generated/client';
 import { Roles } from './decorators/roles.decorator';
@@ -31,6 +31,7 @@ import { RolesGuard } from './guards/roles.guard';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
+@ApiBearerAuth()
 @Controller('v1/users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
