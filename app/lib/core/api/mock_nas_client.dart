@@ -43,9 +43,9 @@ class MockNasClient implements NasClient {
   }
 
   @override
-  Future<FileModel?> getFile(String path) async {
+  Future<FileModel?> getFile(String id) async {
     try {
-      return _files.firstWhere((f) => f.path == path);
+      return _files.firstWhere((f) => f.path == id);
     } on StateError {
       return null;
     }

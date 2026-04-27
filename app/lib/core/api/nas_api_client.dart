@@ -8,9 +8,23 @@ class NasClientException implements Exception {
 }
 
 class NasApiClient implements NasClient {
-  NasApiClient({required Dio dio}) : _dio = dio;
+  NasApiClient({required Dio dio, String? token}) : _dio = dio {
+    if (token != null) {
+      _dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            options.headers['Authorization'] = 'Bearer $token';
+            handler.next(options);
+          },
+        ),
+      );
+    }
+  }
 
   final Dio _dio;
+
+  bool get hasAuthInterceptor =>
+      _dio.interceptors.any((i) => i is InterceptorsWrapper);
 
   Future<bool> ping() async {
     try {
@@ -33,9 +47,9 @@ class NasApiClient implements NasClient {
   }
 
   @override
-  Future<FileModel?> getFile(String path) async {
+  Future<FileModel?> getFile(String id) async {
     try {
-      final response = await _dio.get('/files/$path');
+      final response = await _dio.get('/files/$id');
       return FileModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) return null;

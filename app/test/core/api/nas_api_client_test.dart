@@ -34,7 +34,7 @@ void main() {
         expect(result, isTrue);
       });
 
-      test('서버 응답이 200이 아니면 false를 반환한다', () async {
+      test('서버 응답이 503이면 false를 반환한다', () async {
         when(mockDio.get('/health')).thenAnswer(
           (_) async => Response(
             requestOptions: RequestOptions(path: '/health'),
@@ -80,7 +80,9 @@ void main() {
         // Assert
         expect(result.length, 1);
         expect(result.first.id, 'file-001');
+        expect(result.first.name, 'book.pdf');
         expect(result.first.type, FileType.pdf);
+        expect(result.first.path, '/pdf/book.pdf');
       });
 
       test('빈 목록을 반환하면 빈 리스트를 반환한다', () async {
@@ -107,7 +109,7 @@ void main() {
     });
 
     group('getFile', () {
-      test('단일 파일 정보를 반환한다', () async {
+      test('id로 단일 파일 정보를 반환한다', () async {
         // Arrange
         when(mockDio.get('/files/file-001')).thenAnswer(
           (_) async => Response(
@@ -153,6 +155,23 @@ void main() {
           ),
         );
         expect(() => client.getFile('file-001'), throwsA(isA<NasClientException>()));
+      });
+    });
+
+    group('JWT 인터셉터', () {
+      test('token을 주입하면 인터셉터가 등록된다', () {
+        // Arrange
+        final dio = Dio();
+        // Act
+        final clientWithToken = NasApiClient(dio: dio, token: 'test-token');
+        // Assert
+        expect(clientWithToken.hasAuthInterceptor, isTrue);
+      });
+
+      test('token 없이 생성하면 인터셉터가 등록되지 않는다', () {
+        final dio = Dio();
+        final clientWithoutToken = NasApiClient(dio: dio);
+        expect(clientWithoutToken.hasAuthInterceptor, isFalse);
       });
     });
   });
