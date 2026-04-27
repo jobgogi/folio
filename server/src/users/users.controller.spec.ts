@@ -7,8 +7,7 @@
  */
 import { CanActivate, ExecutionContext, ForbiddenException, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const request = require('supertest');
+import request from 'supertest';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { UsersController } from './users.controller';
