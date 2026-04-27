@@ -13,8 +13,12 @@ import { AuthService } from './auth.service';
 @Module({
   imports: [
     JwtModule.register({
-      secret: process.env.JWT_SECRET ?? 'dev-secret',
-      signOptions: { expiresIn: '1h' },
+      secret:
+        process.env.JWT_SECRET ??
+        (process.env.NODE_ENV === 'production'
+          ? (() => { throw new Error('JWT_SECRET 환경변수가 설정되지 않았습니다.'); })()
+          : 'dev-secret'),
+      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN ?? '1h' },
     }),
   ],
   controllers: [AuthController],

@@ -51,5 +51,22 @@ describe('AuthService', () => {
       const parts = result.accessToken.split('.');
       expect(parts).toHaveLength(3);
     });
+
+    it('발급된 토큰의 payload에 username이 포함된다', async () => {
+      const dto: LoginDto = { username: 'admin', password: 'password123' };
+      const result = await service.login(dto);
+      const payload = JSON.parse(Buffer.from(result.accessToken.split('.')[1], 'base64').toString());
+      expect(payload.username).toBe('admin');
+    });
+
+    it('username이 빈 문자열이면 UnauthorizedException을 던진다', async () => {
+      const dto: LoginDto = { username: '', password: 'password123' };
+      await expect(service.login(dto)).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('password가 빈 문자열이면 UnauthorizedException을 던진다', async () => {
+      const dto: LoginDto = { username: 'admin', password: '' };
+      await expect(service.login(dto)).rejects.toThrow(UnauthorizedException);
+    });
   });
 });
