@@ -6,6 +6,8 @@
  * @see BooksModule
  */
 import { Injectable, NotFoundException } from '@nestjs/common';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 import { Prisma } from '../../prisma/generated/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { GetBooksQueryDto, SortOption } from './dto/get-books-query.dto';
@@ -75,6 +77,26 @@ export class BooksService {
         publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : undefined,
       },
     });
+  }
+
+  /**
+   * @description 책 파일을 읽어 버퍼와 Content-Type, 파일명을 반환한다.
+   * @param {string} id Book ID
+   * @returns {{ buffer: Buffer; contentType: string; filename: string }}
+   * @throws {NotFoundException} Book 미존재 또는 파일 없음 시
+   */
+  async download(id: string): Promise<{ buffer: Buffer; contentType: string; filename: string }> {
+    const book = await this.prisma.book.findUnique({ where: { id } });
+    if (!book) throw new NotFoundException(`Book ${id} not found`);
+
+    try {
+      const buffer = await fs.readFile(book.path);
+      const contentType = book.type === 'PDF' ? 'application/pdf' : 'application/epub+zip';
+      const filename = path.basename(book.path);
+      return { buffer, contentType, filename };
+    } catch {
+      throw new NotFoundException('파일을 찾을 수 없습니다.');
+    }
   }
 
   /**
