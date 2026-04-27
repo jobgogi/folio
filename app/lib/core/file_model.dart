@@ -20,8 +20,8 @@ class FileModel {
       name: json['name'] as String,
       path: json['path'] as String,
       mimeType: json['mimeType'] as String,
-      size: json['size'] as int,
-      fileType: FileType.values.byName(json['fileType'] as String),
+      size: (json['size'] as num).toInt(),
+      fileType: FileType.values.asNameMap()[json['fileType']] ?? FileType.unknown,
     );
   }
 

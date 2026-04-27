@@ -137,6 +137,30 @@ void main() {
         final model = FileModel.fromJson(json);
         expect(model.fileType, FileType.unknown);
       });
+
+      test('fileType이 알 수 없는 값이면 unknown을 반환한다', () {
+        final json = {
+          'name': 'video.mp4',
+          'path': '/nas/videos/video.mp4',
+          'mimeType': 'video/mp4',
+          'size': 4096,
+          'fileType': 'video',
+        };
+        final model = FileModel.fromJson(json);
+        expect(model.fileType, FileType.unknown);
+      });
+
+      test('size가 double로 오면 int로 변환된다', () {
+        final json = {
+          'name': 'book.pdf',
+          'path': '/nas/docs/book.pdf',
+          'mimeType': 'application/pdf',
+          'size': 1024.0,
+          'fileType': 'pdf',
+        };
+        final model = FileModel.fromJson(json);
+        expect(model.size, 1024);
+      });
     });
   });
 }
