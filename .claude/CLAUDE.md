@@ -15,7 +15,7 @@
 9. .claude/rules/nestjs.md     NestJS 코딩 규칙
 
 ## 현재 작업 Phase
-.claude/phases/phase2.md 참고
+.claude/phases/phase3.md 참고
 
 ## 작업 흐름 요약
 develop 최신화
