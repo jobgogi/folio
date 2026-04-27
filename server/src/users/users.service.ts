@@ -8,6 +8,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
@@ -96,14 +97,22 @@ export class UsersService {
   }
 
   /**
-   * @description 유저의 비밀번호를 변경한다.
+   * @description 유저의 비밀번호를 변경한다 (본인 또는 ROOT만 가능).
    * @param {string} id 대상 유저 ID
    * @param {UpdatePasswordDto} dto 새 비밀번호 DTO
+   * @param {{ username: string; role: string }} requester 요청자 정보
    * @throws {NotFoundException} 유저 미존재 시
+   * @throws {ForbiddenException} 본인 또는 ROOT가 아닐 시
    */
-  async updatePassword(id: string, dto: UpdatePasswordDto): Promise<void> {
+  async updatePassword(
+    id: string,
+    dto: UpdatePasswordDto,
+    requester: { username: string; role: string },
+  ): Promise<void> {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('유저를 찾을 수 없습니다.');
+    if (requester.role !== 'ROOT' && requester.username !== user.username)
+      throw new ForbiddenException('본인 또는 ROOT만 변경할 수 있습니다.');
 
     const hashed = await bcrypt.hash(dto.password, 10);
     await this.prisma.user.update({
@@ -127,7 +136,7 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('유저를 찾을 수 없습니다.');
 
-    const ext = path.extname(file.originalname).replace('.', '').toLowerCase();
+    const ext = path.extname(file.originalname).slice(1).toLowerCase();
     if (!ALLOWED_AVATAR_EXTS.includes(ext)) {
       throw new BadRequestException(
         `허용된 확장자: ${ALLOWED_AVATAR_EXTS.join(', ')}`,
@@ -163,7 +172,7 @@ export class UsersService {
     if (!user.avatar) throw new NotFoundException('프로필 사진이 없습니다.');
 
     const buffer = await fs.readFile(user.avatar);
-    const ext = path.extname(user.avatar).replace('.', '').toLowerCase();
+    const ext = path.extname(user.avatar).slice(1).toLowerCase();
     return { buffer, ext };
   }
 }

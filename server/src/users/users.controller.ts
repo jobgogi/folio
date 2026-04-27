@@ -93,6 +93,7 @@ export class UsersController {
    * @description 비밀번호를 변경한다 (본인 또는 ROOT).
    * @param {string} id 대상 유저 ID
    * @param {UpdatePasswordDto} dto 새 비밀번호 DTO
+   * @param {Request} req 요청 객체 (요청자 정보)
    */
   @Patch(':id/password')
   @ApiOperation({ summary: '비밀번호 변경 (본인 또는 ROOT)' })
@@ -100,8 +101,13 @@ export class UsersController {
   @ApiResponse({ status: 400, description: 'DTO 유효성 검사 실패' })
   @ApiResponse({ status: 403, description: '권한 없음' })
   @ApiResponse({ status: 404, description: '유저 미존재' })
-  updatePassword(@Param('id') id: string, @Body() dto: UpdatePasswordDto) {
-    return this.usersService.updatePassword(id, dto);
+  updatePassword(
+    @Param('id') id: string,
+    @Body() dto: UpdatePasswordDto,
+    @Req() req: Request,
+  ) {
+    const requester = req.user as { username: string; role: string };
+    return this.usersService.updatePassword(id, dto, requester);
   }
 
   /**

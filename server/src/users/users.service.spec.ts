@@ -9,6 +9,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
@@ -186,7 +187,7 @@ describe('UsersService', () => {
   });
 
   describe('updatePassword', () => {
-    it('비밀번호를 변경한다', async () => {
+    it('본인이면 비밀번호를 변경한다', async () => {
       // Arrange
       const dto: UpdatePasswordDto = { password: 'newpassword123' };
       mockPrisma.user.findUnique.mockResolvedValue({
@@ -197,8 +198,37 @@ describe('UsersService', () => {
       mockPrisma.user.update.mockResolvedValue({});
       // Act & Assert
       await expect(
-        service.updatePassword('uuid-1', dto),
+        service.updatePassword('uuid-1', dto, { username: 'user1', role: 'USER' }),
       ).resolves.not.toThrow();
+    });
+
+    it('ROOT이면 타인의 비밀번호도 변경할 수 있다', async () => {
+      // Arrange
+      const dto: UpdatePasswordDto = { password: 'newpassword123' };
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'uuid-1',
+        username: 'user1',
+        role: 'USER',
+      });
+      mockPrisma.user.update.mockResolvedValue({});
+      // Act & Assert
+      await expect(
+        service.updatePassword('uuid-1', dto, { username: 'admin', role: 'ROOT' }),
+      ).resolves.not.toThrow();
+    });
+
+    it('타인이 비밀번호 변경 시도하면 ForbiddenException을 던진다', async () => {
+      // Arrange
+      const dto: UpdatePasswordDto = { password: 'newpassword123' };
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'uuid-1',
+        username: 'user1',
+        role: 'USER',
+      });
+      // Act & Assert
+      await expect(
+        service.updatePassword('uuid-1', dto, { username: 'user2', role: 'USER' }),
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it('비밀번호를 bcrypt로 해싱하여 저장한다', async () => {
@@ -211,7 +241,7 @@ describe('UsersService', () => {
       });
       mockPrisma.user.update.mockResolvedValue({});
       // Act
-      await service.updatePassword('uuid-1', dto);
+      await service.updatePassword('uuid-1', dto, { username: 'user1', role: 'USER' });
       // Assert
       const updateCall = mockPrisma.user.update.mock.calls[0][0];
       const isHashed = await bcrypt.compare(
@@ -226,9 +256,9 @@ describe('UsersService', () => {
       const dto: UpdatePasswordDto = { password: 'newpassword123' };
       mockPrisma.user.findUnique.mockResolvedValue(null);
       // Act & Assert
-      await expect(service.updatePassword('not-exist', dto)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.updatePassword('not-exist', dto, { username: 'user1', role: 'USER' }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
