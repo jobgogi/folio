@@ -100,6 +100,29 @@ export class BooksController {
   }
 
   /**
+   * @description 썸네일 이미지를 다운로드한다.
+   * @param {string} id Book ID
+   * @param {Response} res HTTP 응답 객체
+   */
+  @Get(':id/thumbnail')
+  @ApiOperation({ summary: '썸네일 다운로드' })
+  @ApiResponse({ status: 200, description: '다운로드 성공' })
+  @ApiResponse({ status: 401, description: '인증 필요' })
+  @ApiResponse({ status: 404, description: 'Book 없음 또는 썸네일 없음' })
+  async downloadThumbnail(@Param('id') id: string, @Res() res: Response) {
+    const { buffer, ext } = await this.booksService.downloadThumbnail(id);
+    const mimeMap: Record<string, string> = {
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      webp: 'image/webp',
+    };
+    res.setHeader('Content-Type', mimeMap[ext] ?? 'application/octet-stream');
+    res.setHeader('Content-Disposition', 'attachment');
+    res.send(buffer);
+  }
+
+  /**
    * @description 책 파일을 다운로드한다.
    * @param {string} id Book ID
    * @param {Response} res HTTP 응답 객체
