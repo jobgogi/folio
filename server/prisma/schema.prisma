@@ -1,0 +1,30 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "generated"
+  moduleFormat        = "cjs"
+  previewFeatures     = ["queryCompiler", "driverAdapters"]
+  importFileExtension = ""
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model File {
+  id           String    @id @default(uuid())
+  name         String
+  type         FileType
+  path         String    @unique
+  size         Int
+  lastOpenedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastSyncAt   DateTime
+
+  @@map("files")
+}
+
+enum FileType {
+  PDF
+  EPUB
+}

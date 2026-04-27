@@ -16,4 +16,5 @@ export const validationSchema = Joi.object({
     otherwise: Joi.default('dev-secret'),
   }),
   JWT_EXPIRES_IN: Joi.string().default('1h'),
+  DATABASE_URL: Joi.string().required(),
 });
