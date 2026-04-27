@@ -5,8 +5,10 @@
  * @version 1.0.0
  * @see AuthController
  */
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import authConfig from '../config/auth.config';
 import { LoginDto } from './dto/login.dto';
 
 // Phase 1 임시 구현 — Phase 2에서 Prisma + DB 사용자 조회로 교체 예정
@@ -14,19 +16,23 @@ const MOCK_USER = { username: 'admin', password: 'password123' };
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    @Inject(authConfig.KEY)
+    private readonly config: ConfigType<typeof authConfig>,
+    private readonly jwtService: JwtService,
+  ) {}
 
   /**
    * @description 사용자 로그인 처리 및 JWT 액세스 토큰 발급
    * @param {LoginDto} dto 로그인 요청 DTO
-   * @returns {Promise<{ accessToken: string }>} 액세스 토큰
+   * @returns {Promise<{ accessToken: string; expiresIn: string }>} 액세스 토큰과 만료 시간
    * @throws {UnauthorizedException} 자격증명이 올바르지 않을 시
    */
-  async login(dto: LoginDto): Promise<{ accessToken: string }> {
+  async login(dto: LoginDto): Promise<{ accessToken: string; expiresIn: string }> {
     if (dto.username !== MOCK_USER.username || dto.password !== MOCK_USER.password) {
       throw new UnauthorizedException('자격증명이 올바르지 않습니다.');
     }
     const accessToken = this.jwtService.sign({ username: dto.username });
-    return { accessToken };
+    return { accessToken, expiresIn: this.config.jwtExpiresIn };
   }
 }
