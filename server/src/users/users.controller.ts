@@ -11,6 +11,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseFilePipe,
   Patch,
   Post,
   Req,
@@ -127,7 +128,8 @@ export class UsersController {
   @ApiResponse({ status: 404, description: '유저 미존재' })
   uploadAvatar(
     @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(new ParseFilePipe({ fileIsRequired: true }))
+    file: Express.Multer.File,
   ) {
     return this.usersService.uploadAvatar(id, file);
   }
