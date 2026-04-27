@@ -8,6 +8,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import * as fs from 'fs/promises';
+import nasConfig from '../config/nas.config';
 import { PrismaService } from '../prisma/prisma.service';
 import { BooksService } from './books.service';
 
@@ -44,6 +45,7 @@ describe('BooksService', () => {
       providers: [
         BooksService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: nasConfig.KEY, useValue: { mountPath: '/mnt/nas' } },
       ],
     }).compile();
 

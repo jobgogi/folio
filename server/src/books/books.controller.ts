@@ -5,8 +5,9 @@
  * @version 1.0.0
  * @see BooksModule
  */
-import { Body, Controller, Get, Param, Patch, Query, Res, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, ParseFilePipe, Patch, Post, Query, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { BooksService } from './books.service';
@@ -75,6 +76,27 @@ export class BooksController {
   @ApiResponse({ status: 404, description: 'Book 없음' })
   open(@Param('id') id: string) {
     return this.booksService.open(id);
+  }
+
+  /**
+   * @description 썸네일 이미지를 업로드한다.
+   * @param {string} id Book ID
+   * @param {Express.Multer.File} file 업로드 파일
+   * @returns {{ thumbnailPath: string }} 저장된 썸네일 경로
+   */
+  @Post(':id/thumbnail')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: '썸네일 업로드' })
+  @ApiResponse({ status: 201, description: '업로드 성공' })
+  @ApiResponse({ status: 400, description: '파일 없음, 허용되지 않는 확장자 또는 5MB 초과' })
+  @ApiResponse({ status: 401, description: '인증 필요' })
+  @ApiResponse({ status: 404, description: 'Book 없음' })
+  uploadThumbnail(
+    @Param('id') id: string,
+    @UploadedFile(new ParseFilePipe({ fileIsRequired: true })) file: Express.Multer.File,
+  ) {
+    return this.booksService.uploadThumbnail(id, file);
   }
 
   /**
