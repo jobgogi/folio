@@ -43,11 +43,19 @@ export class UsersService {
     try {
       const user = await this.prisma.user.create({
         data: { username: dto.username, password: hashed, role: dto.role },
-        select: { id: true, username: true, role: true, avatar: true, createdAt: true, updatedAt: true },
+        select: {
+          id: true,
+          username: true,
+          role: true,
+          avatar: true,
+          createdAt: true,
+          updatedAt: true,
+        },
       });
       return user;
     } catch (err: any) {
-      if (err?.code === 'P2002') throw new ConflictException('이미 존재하는 username입니다.');
+      if (err?.code === 'P2002')
+        throw new ConflictException('이미 존재하는 username입니다.');
       throw err;
     }
   }
@@ -58,7 +66,14 @@ export class UsersService {
    */
   async findAll() {
     return this.prisma.user.findMany({
-      select: { id: true, username: true, role: true, avatar: true, createdAt: true, updatedAt: true },
+      select: {
+        id: true,
+        username: true,
+        role: true,
+        avatar: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
   }
 
@@ -72,8 +87,10 @@ export class UsersService {
   async deleteUser(id: string, requesterId: string): Promise<void> {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('유저를 찾을 수 없습니다.');
-    if (id === requesterId) throw new BadRequestException('본인 계정은 삭제할 수 없습니다.');
-    if (user.role === 'ROOT') throw new BadRequestException('ROOT 계정은 삭제할 수 없습니다.');
+    if (id === requesterId)
+      throw new BadRequestException('본인 계정은 삭제할 수 없습니다.');
+    if (user.role === 'ROOT')
+      throw new BadRequestException('ROOT 계정은 삭제할 수 없습니다.');
 
     await this.prisma.user.delete({ where: { id } });
   }
@@ -89,7 +106,10 @@ export class UsersService {
     if (!user) throw new NotFoundException('유저를 찾을 수 없습니다.');
 
     const hashed = await bcrypt.hash(dto.password, 10);
-    await this.prisma.user.update({ where: { id }, data: { password: hashed } });
+    await this.prisma.user.update({
+      where: { id },
+      data: { password: hashed },
+    });
   }
 
   /**
@@ -100,13 +120,18 @@ export class UsersService {
    * @throws {NotFoundException} 유저 미존재 시
    * @throws {BadRequestException} 허용되지 않는 확장자 또는 2MB 초과 시
    */
-  async uploadAvatar(id: string, file: Express.Multer.File): Promise<{ avatarPath: string }> {
+  async uploadAvatar(
+    id: string,
+    file: Express.Multer.File,
+  ): Promise<{ avatarPath: string }> {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('유저를 찾을 수 없습니다.');
 
     const ext = path.extname(file.originalname).replace('.', '').toLowerCase();
     if (!ALLOWED_AVATAR_EXTS.includes(ext)) {
-      throw new BadRequestException(`허용된 확장자: ${ALLOWED_AVATAR_EXTS.join(', ')}`);
+      throw new BadRequestException(
+        `허용된 확장자: ${ALLOWED_AVATAR_EXTS.join(', ')}`,
+      );
     }
     if (file.size > MAX_AVATAR_SIZE) {
       throw new BadRequestException('파일 크기는 2MB를 초과할 수 없습니다.');
@@ -119,7 +144,10 @@ export class UsersService {
     const avatarPath = path.join(dir, `${id}.${ext}`);
     await fs.writeFile(avatarPath, file.buffer);
 
-    await this.prisma.user.update({ where: { id }, data: { avatar: avatarPath } });
+    await this.prisma.user.update({
+      where: { id },
+      data: { avatar: avatarPath },
+    });
     return { avatarPath };
   }
 

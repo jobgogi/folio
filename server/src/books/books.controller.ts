@@ -5,9 +5,28 @@
  * @version 1.0.0
  * @see BooksModule
  */
-import { Body, Controller, Get, Param, ParseFilePipe, Patch, Post, Query, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseFilePipe,
+  Patch,
+  Post,
+  Query,
+  Res,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import type { Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { BooksService } from './books.service';
@@ -89,12 +108,16 @@ export class BooksController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: '썸네일 업로드' })
   @ApiResponse({ status: 201, description: '업로드 성공' })
-  @ApiResponse({ status: 400, description: '파일 없음, 허용되지 않는 확장자 또는 5MB 초과' })
+  @ApiResponse({
+    status: 400,
+    description: '파일 없음, 허용되지 않는 확장자 또는 5MB 초과',
+  })
   @ApiResponse({ status: 401, description: '인증 필요' })
   @ApiResponse({ status: 404, description: 'Book 없음' })
   uploadThumbnail(
     @Param('id') id: string,
-    @UploadedFile(new ParseFilePipe({ fileIsRequired: true })) file: Express.Multer.File,
+    @UploadedFile(new ParseFilePipe({ fileIsRequired: true }))
+    file: Express.Multer.File,
   ) {
     return this.booksService.uploadThumbnail(id, file);
   }
@@ -133,7 +156,8 @@ export class BooksController {
   @ApiResponse({ status: 401, description: '인증 필요' })
   @ApiResponse({ status: 404, description: 'Book 없음 또는 파일 없음' })
   async download(@Param('id') id: string, @Res() res: Response) {
-    const { buffer, contentType, filename } = await this.booksService.download(id);
+    const { buffer, contentType, filename } =
+      await this.booksService.download(id);
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(buffer);

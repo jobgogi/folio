@@ -55,7 +55,9 @@ describe('FilesService', () => {
     });
 
     it('존재하지 않는 id는 NotFoundException을 던진다', async () => {
-      await expect(service.findOne('not-exist-id')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('not-exist-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

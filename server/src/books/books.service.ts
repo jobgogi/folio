@@ -5,7 +5,12 @@
  * @version 1.0.0
  * @see BooksModule
  */
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -94,13 +99,16 @@ export class BooksService {
    * @returns {{ buffer: Buffer; contentType: string; filename: string }}
    * @throws {NotFoundException} Book 미존재 또는 파일 없음 시
    */
-  async download(id: string): Promise<{ buffer: Buffer; contentType: string; filename: string }> {
+  async download(
+    id: string,
+  ): Promise<{ buffer: Buffer; contentType: string; filename: string }> {
     const book = await this.prisma.book.findUnique({ where: { id } });
     if (!book) throw new NotFoundException(`Book ${id} not found`);
 
     try {
       const buffer = await fs.readFile(book.path);
-      const contentType = book.type === 'PDF' ? 'application/pdf' : 'application/epub+zip';
+      const contentType =
+        book.type === 'PDF' ? 'application/pdf' : 'application/epub+zip';
       const filename = path.basename(book.path);
       return { buffer, contentType, filename };
     } catch {
@@ -130,7 +138,10 @@ export class BooksService {
    * @throws {NotFoundException} Book 미존재 시
    * @throws {BadRequestException} 허용되지 않는 확장자 또는 5MB 초과 시
    */
-  async uploadThumbnail(id: string, file: Express.Multer.File): Promise<{ thumbnailPath: string }> {
+  async uploadThumbnail(
+    id: string,
+    file: Express.Multer.File,
+  ): Promise<{ thumbnailPath: string }> {
     const book = await this.prisma.book.findUnique({ where: { id } });
     if (!book) throw new NotFoundException(`Book ${id} not found`);
 
@@ -166,7 +177,9 @@ export class BooksService {
    * @returns {{ buffer: Buffer; ext: string }} 파일 버퍼와 확장자
    * @throws {NotFoundException} Book 미존재, 썸네일 없음, 파일 없음 시
    */
-  async downloadThumbnail(id: string): Promise<{ buffer: Buffer; ext: string }> {
+  async downloadThumbnail(
+    id: string,
+  ): Promise<{ buffer: Buffer; ext: string }> {
     const book = await this.prisma.book.findUnique({ where: { id } });
     if (!book) throw new NotFoundException(`Book ${id} not found`);
     if (!book.thumbnail) throw new NotFoundException('썸네일이 없습니다.');

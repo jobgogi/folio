@@ -5,7 +5,12 @@
  * @version 1.0.0
  * @see UsersController
  */
-import { CanActivate, ExecutionContext, ForbiddenException, INestApplication } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  INestApplication,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { JwtAuthGuard } from '../auth/jwt.guard';
@@ -23,7 +28,11 @@ const mockUsersService = {
 };
 
 class MockJwtAuthGuard implements CanActivate {
-  static mockUser: Record<string, unknown> = { id: 'uuid-1', username: 'admin', role: 'ROOT' };
+  static mockUser: Record<string, unknown> = {
+    id: 'uuid-1',
+    username: 'admin',
+    role: 'ROOT',
+  };
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest();
     req.user = MockJwtAuthGuard.mockUser;
@@ -41,20 +50,31 @@ describe('UsersController', () => {
       controllers: [UsersController],
       providers: [{ provide: UsersService, useValue: mockUsersService }],
     })
-      .overrideGuard(JwtAuthGuard).useClass(MockJwtAuthGuard)
+      .overrideGuard(JwtAuthGuard)
+      .useClass(MockJwtAuthGuard)
       .compile();
 
     app = module.createNestApplication();
     await app.init();
   });
 
-  afterEach(async () => { await app.close(); });
+  afterEach(async () => {
+    await app.close();
+  });
 
   describe('POST /v1/users', () => {
     it('ROOT 권한으로 유저를 생성한다', async () => {
       // Arrange
-      MockJwtAuthGuard.mockUser = { id: 'uuid-root', username: 'admin', role: 'ROOT' };
-      mockUsersService.createUser.mockResolvedValue({ id: 'uuid-2', username: 'newuser', role: 'USER' });
+      MockJwtAuthGuard.mockUser = {
+        id: 'uuid-root',
+        username: 'admin',
+        role: 'ROOT',
+      };
+      mockUsersService.createUser.mockResolvedValue({
+        id: 'uuid-2',
+        username: 'newuser',
+        role: 'USER',
+      });
       // Act & Assert
       await request(app.getHttpServer())
         .post('/v1/users')
@@ -64,7 +84,11 @@ describe('UsersController', () => {
 
     it('USER 권한으로 유저 생성 요청 시 403을 반환한다', async () => {
       // Arrange
-      MockJwtAuthGuard.mockUser = { id: 'uuid-1', username: 'user1', role: 'USER' };
+      MockJwtAuthGuard.mockUser = {
+        id: 'uuid-1',
+        username: 'user1',
+        role: 'USER',
+      };
       // Act & Assert
       await request(app.getHttpServer())
         .post('/v1/users')
@@ -76,24 +100,28 @@ describe('UsersController', () => {
   describe('GET /v1/users', () => {
     it('ROOT 권한으로 유저 목록을 반환한다', async () => {
       // Arrange
-      MockJwtAuthGuard.mockUser = { id: 'uuid-root', username: 'admin', role: 'ROOT' };
+      MockJwtAuthGuard.mockUser = {
+        id: 'uuid-root',
+        username: 'admin',
+        role: 'ROOT',
+      };
       mockUsersService.findAll.mockResolvedValue([
         { id: 'uuid-1', username: 'admin', role: 'ROOT' },
         { id: 'uuid-2', username: 'user1', role: 'USER' },
       ]);
       // Act & Assert
-      await request(app.getHttpServer())
-        .get('/v1/users')
-        .expect(200);
+      await request(app.getHttpServer()).get('/v1/users').expect(200);
     });
 
     it('USER 권한으로 목록 조회 시 403을 반환한다', async () => {
       // Arrange
-      MockJwtAuthGuard.mockUser = { id: 'uuid-1', username: 'user1', role: 'USER' };
+      MockJwtAuthGuard.mockUser = {
+        id: 'uuid-1',
+        username: 'user1',
+        role: 'USER',
+      };
       // Act & Assert
-      await request(app.getHttpServer())
-        .get('/v1/users')
-        .expect(403);
+      await request(app.getHttpServer()).get('/v1/users').expect(403);
     });
   });
 });

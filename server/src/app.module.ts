@@ -19,7 +19,11 @@ import { AppController } from './app.controller';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, load: [databaseConfig], validationSchema }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [databaseConfig],
+      validationSchema,
+    }),
     PrismaModule,
     FilesModule,
     AuthModule,

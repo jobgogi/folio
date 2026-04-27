@@ -40,7 +40,10 @@ describe('BooksController — download', () => {
       controllers: [BooksController],
       providers: [
         { provide: BooksService, useValue: mockBooksService },
-        { provide: authConfig.KEY, useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' } },
+        {
+          provide: authConfig.KEY,
+          useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' },
+        },
         JwtStrategy,
         JwtAuthGuard,
       ],

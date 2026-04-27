@@ -26,7 +26,10 @@ export class GetBooksQueryDto {
   @Min(1)
   limit: number = 20;
 
-  @ApiPropertyOptional({ enum: ['recent_opened', 'name', 'recent_added'], example: 'recent_opened' })
+  @ApiPropertyOptional({
+    enum: ['recent_opened', 'name', 'recent_added'],
+    example: 'recent_opened',
+  })
   @IsOptional()
   @IsIn(['recent_opened', 'name', 'recent_added'])
   sort: SortOption = 'recent_opened';

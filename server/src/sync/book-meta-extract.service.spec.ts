@@ -27,7 +27,11 @@ describe('BookMetaExtractService', () => {
         author: 'Robert C. Martin',
       });
       // Act
-      const result = await service.extract('/nas/clean-code.pdf', 'PDF', 'clean-code.pdf');
+      const result = await service.extract(
+        '/nas/clean-code.pdf',
+        'PDF',
+        'clean-code.pdf',
+      );
       // Assert
       expect(result).toEqual({
         title: 'Clean Code',
@@ -37,9 +41,15 @@ describe('BookMetaExtractService', () => {
 
     it('PDF 메타데이터 추출 실패 시 파일명을 title로 fallback한다', async () => {
       // Arrange
-      jest.spyOn(service as any, 'extractPdf').mockRejectedValue(new Error('파싱 실패'));
+      jest
+        .spyOn(service as any, 'extractPdf')
+        .mockRejectedValue(new Error('파싱 실패'));
       // Act
-      const result = await service.extract('/nas/clean-code.pdf', 'PDF', 'clean-code.pdf');
+      const result = await service.extract(
+        '/nas/clean-code.pdf',
+        'PDF',
+        'clean-code.pdf',
+      );
       // Assert
       expect(result).toEqual({ title: 'clean-code' });
     });
@@ -56,7 +66,11 @@ describe('BookMetaExtractService', () => {
         publishedAt: new Date('2007-10-30'),
       });
       // Act
-      const result = await service.extract('/nas/vegetarian.epub', 'EPUB', 'vegetarian.epub');
+      const result = await service.extract(
+        '/nas/vegetarian.epub',
+        'EPUB',
+        'vegetarian.epub',
+      );
       // Assert
       expect(result).toEqual({
         title: '채식주의자',
@@ -74,7 +88,11 @@ describe('BookMetaExtractService', () => {
         readingDirection: 'LTR',
       });
       // Act
-      const result = await service.extract('/nas/book.epub', 'EPUB', 'book.epub');
+      const result = await service.extract(
+        '/nas/book.epub',
+        'EPUB',
+        'book.epub',
+      );
       // Assert
       expect(result.readingDirection).toBe('LTR');
     });
@@ -86,7 +104,11 @@ describe('BookMetaExtractService', () => {
         readingDirection: 'RTL',
       });
       // Act
-      const result = await service.extract('/nas/manga.epub', 'EPUB', 'manga.epub');
+      const result = await service.extract(
+        '/nas/manga.epub',
+        'EPUB',
+        'manga.epub',
+      );
       // Assert
       expect(result.readingDirection).toBe('RTL');
     });
@@ -98,7 +120,11 @@ describe('BookMetaExtractService', () => {
         readingDirection: 'TTB',
       });
       // Act
-      const result = await service.extract('/nas/vertical.epub', 'EPUB', 'vertical.epub');
+      const result = await service.extract(
+        '/nas/vertical.epub',
+        'EPUB',
+        'vertical.epub',
+      );
       // Assert
       expect(result.readingDirection).toBe('TTB');
     });
@@ -109,16 +135,26 @@ describe('BookMetaExtractService', () => {
         title: 'no-direction',
       });
       // Act
-      const result = await service.extract('/nas/no-dir.epub', 'EPUB', 'no-dir.epub');
+      const result = await service.extract(
+        '/nas/no-dir.epub',
+        'EPUB',
+        'no-dir.epub',
+      );
       // Assert
       expect(result.readingDirection).toBeUndefined();
     });
 
     it('ePub 메타데이터 추출 실패 시 파일명을 title로 fallback한다', async () => {
       // Arrange
-      jest.spyOn(service as any, 'extractEpub').mockRejectedValue(new Error('손상된 파일'));
+      jest
+        .spyOn(service as any, 'extractEpub')
+        .mockRejectedValue(new Error('손상된 파일'));
       // Act
-      const result = await service.extract('/nas/broken.epub', 'EPUB', 'broken.epub');
+      const result = await service.extract(
+        '/nas/broken.epub',
+        'EPUB',
+        'broken.epub',
+      );
       // Assert
       expect(result).toEqual({ title: 'broken' });
     });

@@ -5,7 +5,12 @@
  * @version 1.0.0
  * @see AuthController
  */
-import { ForbiddenException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -38,7 +43,9 @@ export class AuthService {
    * @returns {Promise<{ accessToken: string; expiresIn: string }>} 액세스 토큰
    * @throws {ForbiddenException} 이미 유저가 존재할 시
    */
-  async setup(dto: SetupDto): Promise<{ accessToken: string; expiresIn: string }> {
+  async setup(
+    dto: SetupDto,
+  ): Promise<{ accessToken: string; expiresIn: string }> {
     const count = await this.prisma.user.count();
     if (count > 0) throw new ForbiddenException('이미 셋업이 완료되었습니다.');
 
@@ -47,7 +54,10 @@ export class AuthService {
       data: { username: dto.username, password: hashed, role: 'ROOT' },
     });
 
-    const accessToken = this.jwtService.sign({ username: dto.username, role: 'ROOT' });
+    const accessToken = this.jwtService.sign({
+      username: dto.username,
+      role: 'ROOT',
+    });
     return { accessToken, expiresIn: this.config.jwtExpiresIn };
   }
 
@@ -57,14 +67,22 @@ export class AuthService {
    * @returns {Promise<{ accessToken: string; expiresIn: string }>} 액세스 토큰과 만료 시간
    * @throws {UnauthorizedException} 자격증명이 올바르지 않을 시
    */
-  async login(dto: LoginDto): Promise<{ accessToken: string; expiresIn: string }> {
-    const user = await this.prisma.user.findUnique({ where: { username: dto.username } });
+  async login(
+    dto: LoginDto,
+  ): Promise<{ accessToken: string; expiresIn: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { username: dto.username },
+    });
     if (!user) throw new UnauthorizedException('자격증명이 올바르지 않습니다.');
 
     const isMatch = await bcrypt.compare(dto.password, user.password);
-    if (!isMatch) throw new UnauthorizedException('자격증명이 올바르지 않습니다.');
+    if (!isMatch)
+      throw new UnauthorizedException('자격증명이 올바르지 않습니다.');
 
-    const accessToken = this.jwtService.sign({ username: user.username, role: user.role });
+    const accessToken = this.jwtService.sign({
+      username: user.username,
+      role: user.role,
+    });
     return { accessToken, expiresIn: this.config.jwtExpiresIn };
   }
 }

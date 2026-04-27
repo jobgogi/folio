@@ -42,12 +42,20 @@ describe('BooksService — uploadThumbnail', () => {
   });
 
   const makeFile = (name: string, size: number): Express.Multer.File =>
-    ({ originalname: name, size, buffer: Buffer.from('imgdata') } as Express.Multer.File);
+    ({
+      originalname: name,
+      size,
+      buffer: Buffer.from('imgdata'),
+    }) as Express.Multer.File;
 
   it('jpg 파일을 업로드하고 thumbnail 경로를 반영한다', async () => {
     // Arrange
     const file = makeFile('cover.jpg', 1024 * 100);
-    mockPrisma.book.findUnique.mockResolvedValue({ id: 'uuid-1', title: 'Clean Code', thumbnail: null });
+    mockPrisma.book.findUnique.mockResolvedValue({
+      id: 'uuid-1',
+      title: 'Clean Code',
+      thumbnail: null,
+    });
     mockFs.mkdir.mockResolvedValue(undefined);
     mockFs.writeFile.mockResolvedValue(undefined);
     mockPrisma.book.update.mockResolvedValue({});
@@ -60,7 +68,11 @@ describe('BooksService — uploadThumbnail', () => {
   it('png 파일을 업로드하고 thumbnail 경로를 반영한다', async () => {
     // Arrange
     const file = makeFile('cover.png', 1024 * 100);
-    mockPrisma.book.findUnique.mockResolvedValue({ id: 'uuid-1', title: 'Clean Code', thumbnail: null });
+    mockPrisma.book.findUnique.mockResolvedValue({
+      id: 'uuid-1',
+      title: 'Clean Code',
+      thumbnail: null,
+    });
     mockFs.mkdir.mockResolvedValue(undefined);
     mockFs.writeFile.mockResolvedValue(undefined);
     mockPrisma.book.update.mockResolvedValue({});
@@ -73,24 +85,37 @@ describe('BooksService — uploadThumbnail', () => {
   it('허용되지 않는 확장자면 BadRequestException을 던진다', async () => {
     // Arrange
     const file = makeFile('cover.gif', 1024 * 100);
-    mockPrisma.book.findUnique.mockResolvedValue({ id: 'uuid-1', title: 'Clean Code', thumbnail: null });
+    mockPrisma.book.findUnique.mockResolvedValue({
+      id: 'uuid-1',
+      title: 'Clean Code',
+      thumbnail: null,
+    });
     // Act & Assert
-    await expect(service.uploadThumbnail('uuid-1', file)).rejects.toThrow(BadRequestException);
+    await expect(service.uploadThumbnail('uuid-1', file)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('5MB 초과 파일이면 BadRequestException을 던진다', async () => {
     // Arrange
     const file = makeFile('cover.jpg', 1024 * 1024 * 6);
-    mockPrisma.book.findUnique.mockResolvedValue({ id: 'uuid-1', title: 'Clean Code', thumbnail: null });
+    mockPrisma.book.findUnique.mockResolvedValue({
+      id: 'uuid-1',
+      title: 'Clean Code',
+      thumbnail: null,
+    });
     // Act & Assert
-    await expect(service.uploadThumbnail('uuid-1', file)).rejects.toThrow(BadRequestException);
+    await expect(service.uploadThumbnail('uuid-1', file)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('기존 썸네일이 있으면 덮어쓴다', async () => {
     // Arrange
     const file = makeFile('cover.png', 1024 * 100);
     mockPrisma.book.findUnique.mockResolvedValue({
-      id: 'uuid-1', title: 'Clean Code',
+      id: 'uuid-1',
+      title: 'Clean Code',
       thumbnail: `${MOCK_NAS_PATH}/.thumbnails/uuid-1.jpg`,
     });
     mockFs.rm.mockResolvedValue(undefined);
@@ -109,6 +134,8 @@ describe('BooksService — uploadThumbnail', () => {
     const file = makeFile('cover.jpg', 1024 * 100);
     mockPrisma.book.findUnique.mockResolvedValue(null);
     // Act & Assert
-    await expect(service.uploadThumbnail('uuid-1', file)).rejects.toThrow(NotFoundException);
+    await expect(service.uploadThumbnail('uuid-1', file)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

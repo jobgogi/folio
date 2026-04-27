@@ -24,8 +24,18 @@ const mockPrisma = {
 };
 const mockNasConfig = { mountPath: '/nas' };
 
-const scannedPdf = { name: 'book.pdf', path: '/nas/book.pdf', size: 1024, type: 'PDF' as const };
-const dbBook = { id: 'uuid-1', path: '/nas/book.pdf', name: 'book.pdf', type: 'PDF' };
+const scannedPdf = {
+  name: 'book.pdf',
+  path: '/nas/book.pdf',
+  size: 1024,
+  type: 'PDF' as const,
+};
+const dbBook = {
+  id: 'uuid-1',
+  path: '/nas/book.pdf',
+  name: 'book.pdf',
+  type: 'PDF',
+};
 
 describe('BookSyncService', () => {
   let service: BookSyncService;

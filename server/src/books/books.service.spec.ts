@@ -81,7 +81,9 @@ describe('BooksService', () => {
       // Arrange
       mockPrisma.book.findUnique.mockResolvedValue(null);
       // Act & Assert
-      await expect(service.download('not-exist')).rejects.toThrow(NotFoundException);
+      await expect(service.download('not-exist')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('NAS 경로에 파일이 없으면 NotFoundException을 던진다', async () => {
@@ -89,7 +91,9 @@ describe('BooksService', () => {
       mockPrisma.book.findUnique.mockResolvedValue(pdfBook);
       mockFs.readFile.mockRejectedValue(new Error('ENOENT'));
       // Act & Assert
-      await expect(service.download('uuid-1')).rejects.toThrow(NotFoundException);
+      await expect(service.download('uuid-1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

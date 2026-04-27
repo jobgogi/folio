@@ -5,7 +5,11 @@
  * @version 1.0.0
  * @see BooksController
  */
-import { INestApplication, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  INestApplication,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -41,7 +45,10 @@ describe('BooksController — uploadThumbnail', () => {
       controllers: [BooksController],
       providers: [
         { provide: BooksService, useValue: mockBooksService },
-        { provide: authConfig.KEY, useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' } },
+        {
+          provide: authConfig.KEY,
+          useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' },
+        },
         JwtStrategy,
         JwtAuthGuard,
       ],
@@ -91,7 +98,9 @@ describe('BooksController — uploadThumbnail', () => {
 
     it('존재하지 않는 Book id이면 404를 반환한다', async () => {
       // Arrange
-      mockBooksService.uploadThumbnail.mockRejectedValue(new NotFoundException());
+      mockBooksService.uploadThumbnail.mockRejectedValue(
+        new NotFoundException(),
+      );
       const token = jwtService.sign({ username: 'admin', role: 'ROOT' });
       // Act & Assert
       await request(app.getHttpServer())
@@ -103,7 +112,9 @@ describe('BooksController — uploadThumbnail', () => {
 
     it('허용되지 않는 확장자이면 400을 반환한다', async () => {
       // Arrange
-      mockBooksService.uploadThumbnail.mockRejectedValue(new BadRequestException());
+      mockBooksService.uploadThumbnail.mockRejectedValue(
+        new BadRequestException(),
+      );
       const token = jwtService.sign({ username: 'admin', role: 'ROOT' });
       // Act & Assert
       await request(app.getHttpServer())

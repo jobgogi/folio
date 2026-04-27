@@ -30,11 +30,17 @@ describe('AuthService - setup', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        JwtModule.register({ secret: TEST_SECRET, signOptions: { expiresIn: '1h' } }),
+        JwtModule.register({
+          secret: TEST_SECRET,
+          signOptions: { expiresIn: '1h' },
+        }),
       ],
       providers: [
         AuthService,
-        { provide: authConfig.KEY, useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' } },
+        {
+          provide: authConfig.KEY,
+          useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' },
+        },
         { provide: PrismaService, useValue: mockPrisma },
       ],
     }).compile();
@@ -78,7 +84,8 @@ describe('AuthService - setup', () => {
       mockPrisma.user.create.mockResolvedValue({ username: 'admin' });
       const dto: SetupDto = { username: 'admin', password: 'password123' };
       await service.setup(dto);
-      const savedPassword = mockPrisma.user.create.mock.calls[0][0].data.password;
+      const savedPassword =
+        mockPrisma.user.create.mock.calls[0][0].data.password;
       expect(savedPassword).not.toBe('password123');
     });
 
@@ -96,7 +103,9 @@ describe('AuthService - setup', () => {
       mockPrisma.user.create.mockResolvedValue({ username: 'admin' });
       const dto: SetupDto = { username: 'admin', password: 'password123' };
       const result = await service.setup(dto);
-      const payload = JSON.parse(Buffer.from(result.accessToken.split('.')[1], 'base64').toString());
+      const payload = JSON.parse(
+        Buffer.from(result.accessToken.split('.')[1], 'base64').toString(),
+      );
       expect(payload.role).toBe('ROOT');
     });
   });

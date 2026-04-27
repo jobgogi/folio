@@ -20,7 +20,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { UserRole } from '../../prisma/generated/client';
@@ -108,9 +114,15 @@ export class UsersController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: '프로필 사진 업로드 (본인 또는 ROOT)' })
   @ApiResponse({ status: 201, description: '업로드 성공' })
-  @ApiResponse({ status: 400, description: '허용되지 않는 확장자 또는 2MB 초과' })
+  @ApiResponse({
+    status: 400,
+    description: '허용되지 않는 확장자 또는 2MB 초과',
+  })
   @ApiResponse({ status: 404, description: '유저 미존재' })
-  uploadAvatar(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
+  uploadAvatar(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     return this.usersService.uploadAvatar(id, file);
   }
 

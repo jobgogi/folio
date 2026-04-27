@@ -42,7 +42,10 @@ describe('BooksController — downloadThumbnail', () => {
       controllers: [BooksController],
       providers: [
         { provide: BooksService, useValue: mockBooksService },
-        { provide: authConfig.KEY, useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' } },
+        {
+          provide: authConfig.KEY,
+          useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' },
+        },
         JwtStrategy,
         JwtAuthGuard,
       ],
@@ -102,7 +105,9 @@ describe('BooksController — downloadThumbnail', () => {
 
     it('썸네일이 없으면 404를 반환한다', async () => {
       // Arrange
-      mockBooksService.downloadThumbnail.mockRejectedValue(new NotFoundException());
+      mockBooksService.downloadThumbnail.mockRejectedValue(
+        new NotFoundException(),
+      );
       const token = jwtService.sign({ username: 'admin', role: 'ROOT' });
       // Act & Assert
       await request(app.getHttpServer())
@@ -113,7 +118,9 @@ describe('BooksController — downloadThumbnail', () => {
 
     it('존재하지 않는 id이면 404를 반환한다', async () => {
       // Arrange
-      mockBooksService.downloadThumbnail.mockRejectedValue(new NotFoundException());
+      mockBooksService.downloadThumbnail.mockRejectedValue(
+        new NotFoundException(),
+      );
       const token = jwtService.sign({ username: 'admin', role: 'ROOT' });
       // Act & Assert
       await request(app.getHttpServer())

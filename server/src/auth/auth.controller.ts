@@ -37,7 +37,9 @@ export class AuthController {
   @ApiResponse({ status: 201, description: '토큰 발급 성공' })
   @ApiResponse({ status: 400, description: 'DTO 유효성 검사 실패' })
   @ApiResponse({ status: 403, description: '이미 셋업 완료' })
-  setup(@Body() dto: SetupDto): Promise<{ accessToken: string; expiresIn: string }> {
+  setup(
+    @Body() dto: SetupDto,
+  ): Promise<{ accessToken: string; expiresIn: string }> {
     return this.authService.setup(dto);
   }
 
@@ -50,7 +52,9 @@ export class AuthController {
   @ApiOperation({ summary: '로그인' })
   @ApiResponse({ status: 201, description: '토큰 발급 성공' })
   @ApiResponse({ status: 401, description: '자격증명 불일치' })
-  login(@Body() loginDto: LoginDto): Promise<{ accessToken: string; expiresIn: string }> {
+  login(
+    @Body() loginDto: LoginDto,
+  ): Promise<{ accessToken: string; expiresIn: string }> {
     return this.authService.login(loginDto);
   }
 }

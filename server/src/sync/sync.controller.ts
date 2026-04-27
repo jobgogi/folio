@@ -6,7 +6,12 @@
  * @see SyncModule
  */
 import { Controller, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { BookSyncService } from './book-sync.service';
 import { SyncResult } from './book-sync.service';

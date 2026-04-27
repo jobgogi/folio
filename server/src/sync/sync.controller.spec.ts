@@ -28,7 +28,11 @@ describe('SyncController', () => {
   describe('POST /v1/sync', () => {
     it('sync() 결과를 반환한다', async () => {
       // Arrange
-      mockBookSyncService.sync.mockResolvedValue({ added: 2, updated: 1, deleted: 0 });
+      mockBookSyncService.sync.mockResolvedValue({
+        added: 2,
+        updated: 1,
+        deleted: 0,
+      });
       // Act
       const result = await controller.sync();
       // Assert

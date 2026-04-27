@@ -73,14 +73,21 @@ describe('BooksService — downloadThumbnail', () => {
     // Arrange
     mockPrisma.book.findUnique.mockResolvedValue(null);
     // Act & Assert
-    await expect(service.downloadThumbnail('not-exist')).rejects.toThrow(NotFoundException);
+    await expect(service.downloadThumbnail('not-exist')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('thumbnail 필드가 null이면 NotFoundException을 던진다', async () => {
     // Arrange
-    mockPrisma.book.findUnique.mockResolvedValue({ id: 'uuid-1', thumbnail: null });
+    mockPrisma.book.findUnique.mockResolvedValue({
+      id: 'uuid-1',
+      thumbnail: null,
+    });
     // Act & Assert
-    await expect(service.downloadThumbnail('uuid-1')).rejects.toThrow(NotFoundException);
+    await expect(service.downloadThumbnail('uuid-1')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('파일이 존재하지 않으면 NotFoundException을 던진다', async () => {
@@ -91,6 +98,8 @@ describe('BooksService — downloadThumbnail', () => {
     });
     mockFs.readFile.mockRejectedValue(new Error('ENOENT'));
     // Act & Assert
-    await expect(service.downloadThumbnail('uuid-1')).rejects.toThrow(NotFoundException);
+    await expect(service.downloadThumbnail('uuid-1')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

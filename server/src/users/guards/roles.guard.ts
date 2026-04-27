@@ -5,7 +5,12 @@
  * @version 1.0.0
  * @see Roles
  */
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { UserRole } from '../../../prisma/generated/client';
 import { ROLES_KEY } from '../decorators/roles.decorator';

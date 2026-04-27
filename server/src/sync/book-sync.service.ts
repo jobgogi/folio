@@ -58,7 +58,11 @@ export class BookSyncService {
         });
         updated++;
       } else {
-        const meta = await this.metaService.extract(file.path, file.type, file.name);
+        const meta = await this.metaService.extract(
+          file.path,
+          file.type,
+          file.name,
+        );
         await this.prisma.book.upsert({
           where: { path: file.path },
           update: { lastSyncAt: new Date() },

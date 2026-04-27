@@ -38,12 +38,18 @@ describe('JwtAuthGuard', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         PassportModule,
-        JwtModule.register({ secret: TEST_SECRET, signOptions: { expiresIn: '1h' } }),
+        JwtModule.register({
+          secret: TEST_SECRET,
+          signOptions: { expiresIn: '1h' },
+        }),
       ],
       providers: [
         JwtAuthGuard,
         JwtStrategy,
-        { provide: authConfig.KEY, useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' } },
+        {
+          provide: authConfig.KEY,
+          useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' },
+        },
       ],
     }).compile();
 
@@ -70,7 +76,10 @@ describe('JwtAuthGuard', () => {
 
   it('만료된 토큰이면 UnauthorizedException을 던진다', async () => {
     // Arrange
-    const expired = jwtService.sign({ username: 'admin' }, { expiresIn: '-1s' });
+    const expired = jwtService.sign(
+      { username: 'admin' },
+      { expiresIn: '-1s' },
+    );
     const ctx = mockContext(expired);
     // Act & Assert
     await expect(guard.canActivate(ctx)).rejects.toThrow(UnauthorizedException);

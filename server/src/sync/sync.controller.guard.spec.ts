@@ -34,7 +34,10 @@ describe('SyncController — JWT 가드', () => {
       controllers: [SyncController],
       providers: [
         { provide: BookSyncService, useValue: mockBookSyncService },
-        { provide: authConfig.KEY, useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' } },
+        {
+          provide: authConfig.KEY,
+          useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' },
+        },
         JwtStrategy,
         JwtAuthGuard,
       ],
@@ -49,14 +52,16 @@ describe('SyncController — JWT 가드', () => {
 
   describe('POST /v1/sync', () => {
     it('토큰 없으면 401을 반환한다', () => {
-      return request(app.getHttpServer())
-        .post('/v1/sync')
-        .expect(401);
+      return request(app.getHttpServer()).post('/v1/sync').expect(401);
     });
 
     it('유효한 토큰이면 정상 응답한다', async () => {
       // Arrange
-      mockBookSyncService.sync.mockResolvedValue({ added: 1, updated: 0, deleted: 0 });
+      mockBookSyncService.sync.mockResolvedValue({
+        added: 1,
+        updated: 0,
+        deleted: 0,
+      });
       const token = jwtService.sign({ username: 'admin', role: 'ROOT' });
       // Act & Assert
       return request(app.getHttpServer())

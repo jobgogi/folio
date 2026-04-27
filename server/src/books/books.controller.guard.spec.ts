@@ -39,7 +39,10 @@ describe('BooksController — JWT 가드', () => {
       controllers: [BooksController],
       providers: [
         { provide: BooksService, useValue: mockBooksService },
-        { provide: authConfig.KEY, useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' } },
+        {
+          provide: authConfig.KEY,
+          useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h' },
+        },
         JwtStrategy,
         JwtAuthGuard,
       ],
@@ -54,14 +57,15 @@ describe('BooksController — JWT 가드', () => {
 
   describe('GET /v1/books', () => {
     it('토큰 없으면 401을 반환한다', () => {
-      return request(app.getHttpServer())
-        .get('/v1/books')
-        .expect(401);
+      return request(app.getHttpServer()).get('/v1/books').expect(401);
     });
 
     it('유효한 토큰이면 정상 응답한다', async () => {
       // Arrange
-      mockBooksService.findAll.mockResolvedValue({ data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } });
+      mockBooksService.findAll.mockResolvedValue({
+        data: [],
+        meta: { total: 0, page: 1, limit: 20, totalPages: 0 },
+      });
       const token = jwtService.sign({ username: 'admin', role: 'ROOT' });
       // Act & Assert
       return request(app.getHttpServer())
@@ -73,14 +77,15 @@ describe('BooksController — JWT 가드', () => {
 
   describe('GET /v1/books/:id', () => {
     it('토큰 없으면 401을 반환한다', () => {
-      return request(app.getHttpServer())
-        .get('/v1/books/uuid-1')
-        .expect(401);
+      return request(app.getHttpServer()).get('/v1/books/uuid-1').expect(401);
     });
 
     it('유효한 토큰이면 정상 응답한다', async () => {
       // Arrange
-      mockBooksService.findOne.mockResolvedValue({ id: 'uuid-1', title: 'Clean Code' });
+      mockBooksService.findOne.mockResolvedValue({
+        id: 'uuid-1',
+        title: 'Clean Code',
+      });
       const token = jwtService.sign({ username: 'admin', role: 'ROOT' });
       // Act & Assert
       return request(app.getHttpServer())
@@ -100,7 +105,10 @@ describe('BooksController — JWT 가드', () => {
 
     it('유효한 토큰이면 정상 응답한다', async () => {
       // Arrange
-      mockBooksService.update.mockResolvedValue({ id: 'uuid-1', title: 'New Title' });
+      mockBooksService.update.mockResolvedValue({
+        id: 'uuid-1',
+        title: 'New Title',
+      });
       const token = jwtService.sign({ username: 'admin', role: 'ROOT' });
       // Act & Assert
       return request(app.getHttpServer())
@@ -120,7 +128,10 @@ describe('BooksController — JWT 가드', () => {
 
     it('유효한 토큰이면 정상 응답한다', async () => {
       // Arrange
-      mockBooksService.open.mockResolvedValue({ id: 'uuid-1', lastOpenedAt: new Date() });
+      mockBooksService.open.mockResolvedValue({
+        id: 'uuid-1',
+        lastOpenedAt: new Date(),
+      });
       const token = jwtService.sign({ username: 'admin', role: 'ROOT' });
       // Act & Assert
       return request(app.getHttpServer())
