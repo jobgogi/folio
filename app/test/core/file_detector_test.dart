@@ -63,5 +63,22 @@ void main() {
         expect(result, FileType.epub);
       });
     });
+
+    group('MIME 대소문자 무관', () {
+      test('MIME이 APPLICATION/PDF이면 pdf를 반환한다', () {
+        final result = detector.detect(mimeType: 'APPLICATION/PDF', fileName: 'book');
+        expect(result, FileType.pdf);
+      });
+
+      test('MIME이 Application/PDF이면 pdf를 반환한다', () {
+        final result = detector.detect(mimeType: 'Application/PDF', fileName: 'book');
+        expect(result, FileType.pdf);
+      });
+
+      test('MIME이 APPLICATION/EPUB+ZIP이면 epub를 반환한다', () {
+        final result = detector.detect(mimeType: 'APPLICATION/EPUB+ZIP', fileName: 'novel');
+        expect(result, FileType.epub);
+      });
+    });
   });
 }
