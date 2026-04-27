@@ -247,15 +247,16 @@ feature/phase2-sync-api
 feature/phase2-books-api
 
 ## 완료 조건
-- [ ] docker-compose up -d 정상 실행
-- [ ] Prisma 마이그레이션 정상 적용
-- [ ] npm test 전체 통과
-- [ ] POST /v1/sync 실행 후 DB 반영 확인
+- [x] docker-compose up -d 정상 실행
+- [x] Prisma 마이그레이션 정상 적용 (20260427060034_init)
+- [x] POST /v1/sync 실행 후 DB 반영 확인 (225개 Book 생성)
 - [ ] GET /v1/books Swagger 문서 확인
-- [ ] PATCH /v1/books/:id 수정 반영 확인
-- [ ] PATCH /v1/books/:id/open lastOpenedAt 갱신 확인
-- [ ] 각 브랜치 PR 머지 완료 (develop 기준)
-- [ ] develop → main PR 머지 완료
+- [x] GET /v1/books 페이징/정렬 응답 확인
+- [x] PATCH /v1/books/:id 수정 반영 확인
+- [x] PATCH /v1/books/:id/open lastOpenedAt 갱신 확인
+- [x] npm test 전체 통과 (44개)
+- [x] 각 브랜치 PR 머지 완료 (develop 기준, PR #12~#19)
+- [x] develop → main PR 머지 완료 (PR #20)
 
 ## 다음 Phase
 Phase 3 시작 조건: Phase 2 완료 조건 전부 충족
