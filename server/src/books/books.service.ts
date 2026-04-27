@@ -5,11 +5,23 @@
  * @version 1.0.0
  * @see BooksModule
  */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 import { Prisma } from '../../prisma/generated/client';
+import nasConfig from '../config/nas.config';
 import { PrismaService } from '../prisma/prisma.service';
 import { GetBooksQueryDto, SortOption } from './dto/get-books-query.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+
+const THUMBNAIL_ALLOWED_EXTS = ['jpg', 'jpeg', 'png'];
+const THUMBNAIL_MAX_SIZE = 5 * 1024 * 1024;
 
 const SORT_MAP: Record<SortOption, Prisma.BookOrderByWithRelationInput> = {
   recent_opened: { lastOpenedAt: 'desc' },
@@ -19,7 +31,11 @@ const SORT_MAP: Record<SortOption, Prisma.BookOrderByWithRelationInput> = {
 
 @Injectable()
 export class BooksService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(nasConfig.KEY)
+    private readonly nas: ConfigType<typeof nasConfig>,
+  ) {}
 
   /**
    * @description Book 목록을 페이징 및 정렬하여 반환한다.
@@ -78,6 +94,29 @@ export class BooksService {
   }
 
   /**
+   * @description 책 파일을 읽어 버퍼와 Content-Type, 파일명을 반환한다.
+   * @param {string} id Book ID
+   * @returns {{ buffer: Buffer; contentType: string; filename: string }}
+   * @throws {NotFoundException} Book 미존재 또는 파일 없음 시
+   */
+  async download(
+    id: string,
+  ): Promise<{ buffer: Buffer; contentType: string; filename: string }> {
+    const book = await this.prisma.book.findUnique({ where: { id } });
+    if (!book) throw new NotFoundException(`Book ${id} not found`);
+
+    try {
+      const buffer = await fs.readFile(book.path);
+      const contentType =
+        book.type === 'PDF' ? 'application/pdf' : 'application/epub+zip';
+      const filename = path.basename(book.path);
+      return { buffer, contentType, filename };
+    } catch {
+      throw new NotFoundException('파일을 찾을 수 없습니다.');
+    }
+  }
+
+  /**
    * @description 마지막 열람 시각을 현재 시각으로 갱신한다.
    * @param {string} id Book ID
    * @returns 갱신된 Book
@@ -89,5 +128,68 @@ export class BooksService {
       where: { id },
       data: { lastOpenedAt: new Date() },
     });
+  }
+
+  /**
+   * @description 썸네일 이미지를 업로드하고 Book에 경로를 반영한다.
+   * @param {string} id Book ID
+   * @param {Express.Multer.File} file 업로드 파일
+   * @returns {{ thumbnailPath: string }} 저장된 썸네일 경로
+   * @throws {NotFoundException} Book 미존재 시
+   * @throws {BadRequestException} 허용되지 않는 확장자 또는 5MB 초과 시
+   */
+  async uploadThumbnail(
+    id: string,
+    file: Express.Multer.File,
+  ): Promise<{ thumbnailPath: string }> {
+    const book = await this.prisma.book.findUnique({ where: { id } });
+    if (!book) throw new NotFoundException(`Book ${id} not found`);
+
+    const ext = path.extname(file.originalname).slice(1).toLowerCase();
+    if (!THUMBNAIL_ALLOWED_EXTS.includes(ext)) {
+      throw new BadRequestException(`허용되지 않는 확장자입니다: ${ext}`);
+    }
+    if (file.size > THUMBNAIL_MAX_SIZE) {
+      throw new BadRequestException('썸네일은 5MB를 초과할 수 없습니다.');
+    }
+
+    if (book.thumbnail) {
+      await fs.rm(book.thumbnail, { force: true });
+    }
+
+    const thumbnailDir = path.join(this.nas.mountPath!, '.thumbnails');
+    await fs.mkdir(thumbnailDir, { recursive: true });
+
+    const thumbnailPath = path.join(thumbnailDir, `${id}.${ext}`);
+    await fs.writeFile(thumbnailPath, file.buffer);
+
+    await this.prisma.book.update({
+      where: { id },
+      data: { thumbnail: thumbnailPath },
+    });
+
+    return { thumbnailPath };
+  }
+
+  /**
+   * @description 썸네일 이미지를 읽어 버퍼와 확장자를 반환한다.
+   * @param {string} id Book ID
+   * @returns {{ buffer: Buffer; ext: string }} 파일 버퍼와 확장자
+   * @throws {NotFoundException} Book 미존재, 썸네일 없음, 파일 없음 시
+   */
+  async downloadThumbnail(
+    id: string,
+  ): Promise<{ buffer: Buffer; ext: string }> {
+    const book = await this.prisma.book.findUnique({ where: { id } });
+    if (!book) throw new NotFoundException(`Book ${id} not found`);
+    if (!book.thumbnail) throw new NotFoundException('썸네일이 없습니다.');
+
+    try {
+      const buffer = await fs.readFile(book.thumbnail);
+      const ext = path.extname(book.thumbnail).slice(1).toLowerCase();
+      return { buffer, ext };
+    } catch {
+      throw new NotFoundException('썸네일 파일을 찾을 수 없습니다.');
+    }
   }
 }

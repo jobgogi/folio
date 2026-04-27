@@ -24,8 +24,18 @@ const mockPrisma = {
 };
 const mockNasConfig = { mountPath: '/nas' };
 
-const scannedPdf = { name: 'book.pdf', path: '/nas/book.pdf', size: 1024, type: 'PDF' as const };
-const dbBook = { id: 'uuid-1', path: '/nas/book.pdf', name: 'book.pdf', type: 'PDF' };
+const scannedPdf = {
+  name: 'book.pdf',
+  path: '/nas/book.pdf',
+  size: 1024,
+  type: 'PDF' as const,
+};
+const dbBook = {
+  id: 'uuid-1',
+  path: '/nas/book.pdf',
+  name: 'book.pdf',
+  type: 'PDF',
+};
 
 describe('BookSyncService', () => {
   let service: BookSyncService;
@@ -141,6 +151,19 @@ describe('BookSyncService', () => {
       const result = await service.sync();
       // Assert
       expect(result).toEqual({ added: 0, updated: 0, deleted: 0 });
+    });
+
+    it('동일 경로가 중복 스캔되면 upsert를 한 번만 호출한다', async () => {
+      // Arrange — 같은 path를 가진 파일이 스캔 결과에 두 번 포함
+      mockScanService.scan.mockResolvedValue([scannedPdf, scannedPdf]);
+      mockPrisma.book.findMany.mockResolvedValue([]);
+      mockMetaService.extract.mockResolvedValue({ title: 'book' });
+      mockPrisma.book.upsert.mockResolvedValue({});
+      // Act
+      const result = await service.sync();
+      // Assert
+      expect(mockPrisma.book.upsert).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ added: 1, updated: 0, deleted: 0 });
     });
   });
 });

@@ -14,6 +14,12 @@ jest.mock('@prisma/adapter-pg', () => ({
 jest.mock('../../prisma/generated/client', () => ({
   PrismaClient: class {
     constructor(_opts?: unknown) {}
+    $connect() {
+      return Promise.resolve();
+    }
+    $disconnect() {
+      return Promise.resolve();
+    }
   },
 }));
 
@@ -39,5 +45,10 @@ describe('PrismaService', () => {
 
   it('databaseConfig로부터 url을 읽어 인스턴스를 생성한다', () => {
     expect(service).toBeInstanceOf(PrismaService);
+  });
+
+  it('PrismaService는 $connect, $disconnect 메서드를 갖는다', () => {
+    expect(typeof service.$connect).toBe('function');
+    expect(typeof service.$disconnect).toBe('function');
   });
 });

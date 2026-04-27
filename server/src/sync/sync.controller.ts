@@ -5,13 +5,21 @@
  * @version 1.0.0
  * @see SyncModule
  */
-import { Controller, Post } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt.guard';
 import { BookSyncService } from './book-sync.service';
 import { SyncResult } from './book-sync.service';
 
 @ApiTags('sync')
+@ApiBearerAuth()
 @Controller('v1/sync')
+@UseGuards(JwtAuthGuard)
 export class SyncController {
   constructor(private readonly bookSyncService: BookSyncService) {}
 
@@ -22,6 +30,7 @@ export class SyncController {
   @Post()
   @ApiOperation({ summary: '수동 싱크 트리거' })
   @ApiResponse({ status: 201, description: '싱크 완료' })
+  @ApiResponse({ status: 401, description: '인증 필요' })
   sync(): Promise<SyncResult> {
     return this.bookSyncService.sync();
   }

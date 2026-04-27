@@ -1,7 +1,13 @@
+/**
+ * @description FilesService 단위 테스트
+ * @author 설석주 (ixymori@gmail.com)
+ * @since 2026.04.27
+ * @version 1.0.0
+ * @see FilesService
+ */
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { FilesService } from './files.service';
-import { FileDto } from './dto/file.dto';
 
 describe('FilesService', () => {
   let service: FilesService;
@@ -42,18 +48,16 @@ describe('FilesService', () => {
 
   describe('findOne', () => {
     it('id로 단일 파일을 반환한다', async () => {
-      // Arrange
-      const files = await service.findAll();
-      const target = files[0];
       // Act
-      const result = await service.findOne(target.id);
+      const result = await service.findOne('file-001');
       // Assert
-      expect(result).not.toBeNull();
-      expect(result!.id).toBe(target.id);
+      expect(result.id).toBe('file-001');
     });
 
     it('존재하지 않는 id는 NotFoundException을 던진다', async () => {
-      await expect(service.findOne('not-exist-id')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('not-exist-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

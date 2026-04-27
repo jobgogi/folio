@@ -5,28 +5,86 @@
  * @version 1.0.0
  * @see AuthController
  */
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import authConfig from '../config/auth.config';
+import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
-
-// Phase 1 임시 구현 — Phase 2에서 Prisma + DB 사용자 조회로 교체 예정
-const MOCK_USER = { username: 'admin', password: 'password123' };
+import { SetupDto } from './dto/setup.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    @Inject(authConfig.KEY)
+    private readonly config: ConfigType<typeof authConfig>,
+    private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
+  ) {}
+
+  /**
+   * @description 셋업 필요 여부를 반환한다.
+   * @returns {Promise<{ needsSetup: boolean }>} DB에 유저가 없으면 true
+   */
+  async getSetupStatus(): Promise<{ needsSetup: boolean }> {
+    const count = await this.prisma.user.count();
+    return { needsSetup: count === 0 };
+  }
+
+  /**
+   * @description root 계정을 생성하고 JWT 토큰을 발급한다.
+   * @param {SetupDto} dto 셋업 요청 DTO
+   * @returns {Promise<{ accessToken: string; expiresIn: string }>} 액세스 토큰
+   * @throws {ForbiddenException} 이미 유저가 존재할 시
+   */
+  async setup(
+    dto: SetupDto,
+  ): Promise<{ accessToken: string; expiresIn: string }> {
+    const count = await this.prisma.user.count();
+    if (count > 0) throw new ForbiddenException('이미 셋업이 완료되었습니다.');
+
+    const hashed = await bcrypt.hash(dto.password, 10);
+    const created = await this.prisma.user.create({
+      data: { username: dto.username, password: hashed, role: 'ROOT' },
+    });
+
+    const accessToken = this.jwtService.sign({
+      sub: created.id,
+      username: dto.username,
+      role: 'ROOT',
+    });
+    return { accessToken, expiresIn: this.config.jwtExpiresIn };
+  }
 
   /**
    * @description 사용자 로그인 처리 및 JWT 액세스 토큰 발급
    * @param {LoginDto} dto 로그인 요청 DTO
-   * @returns {Promise<{ accessToken: string }>} 액세스 토큰
+   * @returns {Promise<{ accessToken: string; expiresIn: string }>} 액세스 토큰과 만료 시간
    * @throws {UnauthorizedException} 자격증명이 올바르지 않을 시
    */
-  async login(dto: LoginDto): Promise<{ accessToken: string }> {
-    if (dto.username !== MOCK_USER.username || dto.password !== MOCK_USER.password) {
+  async login(
+    dto: LoginDto,
+  ): Promise<{ accessToken: string; expiresIn: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { username: dto.username },
+    });
+    if (!user) throw new UnauthorizedException('자격증명이 올바르지 않습니다.');
+
+    const isMatch = await bcrypt.compare(dto.password, user.password);
+    if (!isMatch)
       throw new UnauthorizedException('자격증명이 올바르지 않습니다.');
-    }
-    const accessToken = this.jwtService.sign({ username: dto.username });
-    return { accessToken };
+
+    const accessToken = this.jwtService.sign({
+      sub: user.id,
+      username: user.username,
+      role: user.role,
+    });
+    return { accessToken, expiresIn: this.config.jwtExpiresIn };
   }
 }

@@ -8,6 +8,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import nasConfig from '../config/nas.config';
+import { AuthModule } from '../auth/auth.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { BookScanService } from './book-scan.service';
 import { BookMetaExtractService } from './book-meta-extract.service';
@@ -15,7 +16,7 @@ import { BookSyncService } from './book-sync.service';
 import { SyncController } from './sync.controller';
 
 @Module({
-  imports: [ConfigModule.forFeature(nasConfig), PrismaModule],
+  imports: [ConfigModule.forFeature(nasConfig), PrismaModule, AuthModule],
   controllers: [SyncController],
   providers: [BookScanService, BookMetaExtractService, BookSyncService],
 })

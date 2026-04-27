@@ -53,16 +53,18 @@ describe('BooksController', () => {
       };
       mockBooksService.findAll.mockResolvedValue(paged);
       // Act
-      const result = await controller.findAll({ page: 1, limit: 20, sort: 'recent_opened' });
+      const result = await controller.findAll({
+        page: 1,
+        limit: 20,
+        sort: 'recent_opened',
+      });
       // Assert
-      expect(mockBooksService.findAll).toHaveBeenCalledWith({ page: 1, limit: 20, sort: 'recent_opened' });
+      expect(mockBooksService.findAll).toHaveBeenCalledWith({
+        page: 1,
+        limit: 20,
+        sort: 'recent_opened',
+      });
       expect(result).toEqual(paged);
-    });
-
-    it('잘못된 sort 값이면 400을 반환한다', async () => {
-      // ValidationPipe가 처리하므로 DTO 유효성 검사로 커버됨
-      // 컨트롤러 레벨에서는 유효한 sort만 도달함 — DTO 테스트로 검증
-      expect(true).toBe(true);
     });
   });
 
@@ -81,7 +83,9 @@ describe('BooksController', () => {
       // Arrange
       mockBooksService.findOne.mockRejectedValue(new NotFoundException());
       // Act & Assert
-      await expect(controller.findOne('no-such-id')).rejects.toThrow(NotFoundException);
+      await expect(controller.findOne('no-such-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -91,9 +95,13 @@ describe('BooksController', () => {
       const updated = { ...book, title: 'Refactoring' };
       mockBooksService.update.mockResolvedValue(updated);
       // Act
-      const result = await controller.update('uuid-1', { title: 'Refactoring' });
+      const result = await controller.update('uuid-1', {
+        title: 'Refactoring',
+      });
       // Assert
-      expect(mockBooksService.update).toHaveBeenCalledWith('uuid-1', { title: 'Refactoring' });
+      expect(mockBooksService.update).toHaveBeenCalledWith('uuid-1', {
+        title: 'Refactoring',
+      });
       expect(result).toEqual(updated);
     });
 
@@ -102,7 +110,9 @@ describe('BooksController', () => {
       const updated = { ...book, author: '마틴 파울러' };
       mockBooksService.update.mockResolvedValue(updated);
       // Act
-      const result = await controller.update('uuid-1', { author: '마틴 파울러' });
+      const result = await controller.update('uuid-1', {
+        author: '마틴 파울러',
+      });
       // Assert
       expect(result.author).toBe('마틴 파울러');
     });
@@ -112,7 +122,9 @@ describe('BooksController', () => {
       const updated = { ...book, readingDirection: 'RTL' };
       mockBooksService.update.mockResolvedValue(updated);
       // Act
-      const result = await controller.update('uuid-1', { readingDirection: 'RTL' });
+      const result = await controller.update('uuid-1', {
+        readingDirection: 'RTL',
+      });
       // Assert
       expect(result.readingDirection).toBe('RTL');
     });
@@ -121,7 +133,9 @@ describe('BooksController', () => {
       // Arrange
       mockBooksService.update.mockRejectedValue(new NotFoundException());
       // Act & Assert
-      await expect(controller.update('no-such-id', { title: 'X' })).rejects.toThrow(NotFoundException);
+      await expect(
+        controller.update('no-such-id', { title: 'X' }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -141,7 +155,9 @@ describe('BooksController', () => {
       // Arrange
       mockBooksService.open.mockRejectedValue(new NotFoundException());
       // Act & Assert
-      await expect(controller.open('no-such-id')).rejects.toThrow(NotFoundException);
+      await expect(controller.open('no-such-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

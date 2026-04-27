@@ -38,12 +38,17 @@ export class BookMetaExtractService {
    * @param {string} fileName 파일명 (fallback용)
    * @returns {Promise<BookMeta>} 추출된 메타데이터
    */
-  async extract(filePath: string, type: 'PDF' | 'EPUB', fileName: string): Promise<BookMeta> {
+  async extract(
+    filePath: string,
+    type: 'PDF' | 'EPUB',
+    fileName: string,
+  ): Promise<BookMeta> {
     const baseName = path.basename(fileName, path.extname(fileName));
     try {
-      const meta = type === 'PDF'
-        ? await this.extractPdf(filePath)
-        : await this.extractEpub(filePath);
+      const meta =
+        type === 'PDF'
+          ? await this.extractPdf(filePath)
+          : await this.extractEpub(filePath);
       return { title: baseName, ...meta } as BookMeta;
     } catch {
       return { title: baseName };
@@ -71,7 +76,10 @@ export class BookMetaExtractService {
    */
   private async extractEpub(filePath: string): Promise<Partial<BookMeta>> {
     const zip = new AdmZip(filePath);
-    const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' });
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      attributeNamePrefix: '@_',
+    });
 
     // container.xml에서 OPF 경로 확인
     const containerXml = zip.readAsText('META-INF/container.xml');
@@ -86,7 +94,9 @@ export class BookMetaExtractService {
     const spine = opf?.package?.spine;
 
     const rawDirection = spine?.['@_page-progression-direction'];
-    const readingDirection = rawDirection ? DIRECTION_MAP[rawDirection] : undefined;
+    const readingDirection = rawDirection
+      ? DIRECTION_MAP[rawDirection]
+      : undefined;
 
     const publishedRaw = metadata?.['dc:date'];
     const publishedAt = publishedRaw ? new Date(publishedRaw) : undefined;
@@ -94,7 +104,8 @@ export class BookMetaExtractService {
     return {
       title: metadata?.['dc:title'] || undefined,
       author: metadata?.['dc:creator'] || undefined,
-      isbn: metadata?.['dc:identifier']?.replace(/^urn:isbn:/i, '') || undefined,
+      isbn:
+        metadata?.['dc:identifier']?.replace(/^urn:isbn:/i, '') || undefined,
       publisher: metadata?.['dc:publisher'] || undefined,
       publishedAt,
       readingDirection,
