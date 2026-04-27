@@ -146,17 +146,17 @@ export class BooksService {
       await fs.rm(book.thumbnail, { force: true });
     }
 
-    const thumbnailDir = path.join(this.nas.mountPath as string, '.thumbnails');
+    const thumbnailDir = path.join(this.nas.mountPath!, '.thumbnails');
     await fs.mkdir(thumbnailDir, { recursive: true });
 
     const thumbnailPath = path.join(thumbnailDir, `${id}.${ext}`);
     await fs.writeFile(thumbnailPath, file.buffer);
 
-    const updated = await this.prisma.book.update({
+    await this.prisma.book.update({
       where: { id },
       data: { thumbnail: thumbnailPath },
     });
 
-    return { thumbnailPath: updated.thumbnail as string };
+    return { thumbnailPath };
   }
 }

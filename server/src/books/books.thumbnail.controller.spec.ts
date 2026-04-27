@@ -113,6 +113,16 @@ describe('BooksController — uploadThumbnail', () => {
         .expect(400);
     });
 
+    it('파일 없으면 400을 반환한다', async () => {
+      // Arrange
+      const token = jwtService.sign({ username: 'admin', role: 'ROOT' });
+      // Act & Assert
+      await request(app.getHttpServer())
+        .post('/v1/books/uuid-1/thumbnail')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(400);
+    });
+
     it('토큰 없으면 401을 반환한다', async () => {
       // Act & Assert
       await request(app.getHttpServer())
