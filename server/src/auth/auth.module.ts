@@ -19,7 +19,7 @@ import { AuthService } from './auth.service';
       inject: [authConfig.KEY],
       useFactory: (config: ConfigType<typeof authConfig>) => ({
         secret: config.jwtSecret,
-        signOptions: { expiresIn: config.jwtExpiresIn },
+        signOptions: { expiresIn: config.jwtExpiresIn as any },
       }),
     }),
   ],

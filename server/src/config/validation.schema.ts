@@ -13,7 +13,7 @@ export const validationSchema = Joi.object({
   JWT_SECRET: Joi.string().when('NODE_ENV', {
     is: 'production',
     then: Joi.required(),
-    otherwise: Joi.default('dev-secret'),
+    otherwise: Joi.string().default('dev-secret'),
   }),
   JWT_EXPIRES_IN: Joi.string().default('1h'),
   DATABASE_URL: Joi.string().required(),

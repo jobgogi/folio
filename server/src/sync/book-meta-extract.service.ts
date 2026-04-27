@@ -8,7 +8,8 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
-import pdfParse from 'pdf-parse';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pdfParse = require('pdf-parse');
 import AdmZip from 'adm-zip';
 import { XMLParser } from 'fast-xml-parser';
 

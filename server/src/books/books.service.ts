@@ -6,7 +6,7 @@
  * @see BooksModule
  */
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '../../prisma/generated';
+import { Prisma } from '../../prisma/generated/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { GetBooksQueryDto, SortOption } from './dto/get-books-query.dto';
 import { UpdateBookDto } from './dto/update-book.dto';

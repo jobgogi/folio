@@ -6,7 +6,7 @@
  * @see SyncModule
  */
 import { Inject, Injectable } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
+import type { ConfigType } from '@nestjs/config';
 import nasConfig from '../config/nas.config';
 import { BookScanService } from './book-scan.service';
 import { BookMetaExtractService } from './book-meta-extract.service';
@@ -35,10 +35,13 @@ export class BookSyncService {
   async sync(): Promise<SyncResult> {
     const mountPath = this.nas.mountPath ?? '';
 
-    const [scanned, dbBooks] = await Promise.all([
+    const [rawScanned, dbBooks] = await Promise.all([
       this.scanService.scan(mountPath),
       this.prisma.book.findMany(),
     ]);
+
+    // 동일 경로 중복 제거 (macOS case-insensitive FS 등에서 발생 가능)
+    const scanned = [...new Map(rawScanned.map((f) => [f.path, f])).values()];
 
     const dbByPath = new Map(dbBooks.map((b) => [b.path, b]));
     const scannedPaths = new Set(scanned.map((f) => f.path));
@@ -56,8 +59,10 @@ export class BookSyncService {
         updated++;
       } else {
         const meta = await this.metaService.extract(file.path, file.type, file.name);
-        await this.prisma.book.create({
-          data: {
+        await this.prisma.book.upsert({
+          where: { path: file.path },
+          update: { lastSyncAt: new Date() },
+          create: {
             name: file.name,
             type: file.type,
             path: file.path,
