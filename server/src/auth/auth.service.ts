@@ -9,6 +9,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 
+// Phase 1 임시 구현 — Phase 2에서 Prisma + DB 사용자 조회로 교체 예정
 const MOCK_USER = { username: 'admin', password: 'password123' };
 
 @Injectable()
