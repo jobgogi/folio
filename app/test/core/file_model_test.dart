@@ -5,75 +5,80 @@ import 'package:app/core/file_detector.dart';
 void main() {
   group('FileModel', () {
     group('생성', () {
-      test('모든 필드가 정상적으로 할당된다', () {
+      test('필수 필드만으로 생성된다', () {
         // Arrange + Act
-        const model = FileModel(
+        final model = FileModel(
+          id: 'file-001',
           name: 'book.pdf',
+          type: FileType.pdf,
           path: '/nas/docs/book.pdf',
-          mimeType: 'application/pdf',
-          size: 1024,
-          fileType: FileType.pdf,
         );
         // Assert
+        expect(model.id, 'file-001');
         expect(model.name, 'book.pdf');
+        expect(model.type, FileType.pdf);
         expect(model.path, '/nas/docs/book.pdf');
-        expect(model.mimeType, 'application/pdf');
-        expect(model.size, 1024);
-        expect(model.fileType, FileType.pdf);
+        expect(model.lastOpenedAt, isNull);
+      });
+
+      test('lastOpenedAt을 포함해서 생성된다', () {
+        final openedAt = DateTime(2026, 4, 27, 10, 0);
+        final model = FileModel(
+          id: 'file-002',
+          name: 'novel.epub',
+          type: FileType.epub,
+          path: '/nas/books/novel.epub',
+          lastOpenedAt: openedAt,
+        );
+        expect(model.lastOpenedAt, openedAt);
       });
     });
 
     group('동등성', () {
       test('같은 값이면 동등하다', () {
-        const a = FileModel(
+        final a = FileModel(
+          id: 'file-001',
           name: 'book.pdf',
+          type: FileType.pdf,
           path: '/nas/docs/book.pdf',
-          mimeType: 'application/pdf',
-          size: 1024,
-          fileType: FileType.pdf,
         );
-        const b = FileModel(
+        final b = FileModel(
+          id: 'file-001',
           name: 'book.pdf',
+          type: FileType.pdf,
           path: '/nas/docs/book.pdf',
-          mimeType: 'application/pdf',
-          size: 1024,
-          fileType: FileType.pdf,
         );
         expect(a, b);
       });
 
-      test('name이 다르면 동등하지 않다', () {
-        const a = FileModel(
+      test('id가 다르면 동등하지 않다', () {
+        final a = FileModel(
+          id: 'file-001',
           name: 'book.pdf',
+          type: FileType.pdf,
           path: '/nas/docs/book.pdf',
-          mimeType: 'application/pdf',
-          size: 1024,
-          fileType: FileType.pdf,
         );
-        const b = FileModel(
-          name: 'other.pdf',
+        final b = FileModel(
+          id: 'file-002',
+          name: 'book.pdf',
+          type: FileType.pdf,
           path: '/nas/docs/book.pdf',
-          mimeType: 'application/pdf',
-          size: 1024,
-          fileType: FileType.pdf,
         );
         expect(a, isNot(b));
       });
 
       test('path가 다르면 동등하지 않다', () {
-        const a = FileModel(
+        final a = FileModel(
+          id: 'file-001',
           name: 'book.pdf',
+          type: FileType.pdf,
           path: '/nas/docs/book.pdf',
-          mimeType: 'application/pdf',
-          size: 1024,
-          fileType: FileType.pdf,
         );
-        const b = FileModel(
+        final b = FileModel(
+          id: 'file-001',
           name: 'book.pdf',
+          type: FileType.pdf,
           path: '/nas/other/book.pdf',
-          mimeType: 'application/pdf',
-          size: 1024,
-          fileType: FileType.pdf,
         );
         expect(a, isNot(b));
       });
@@ -81,85 +86,69 @@ void main() {
 
     group('JSON 변환', () {
       test('fromJson으로 FileModel을 생성한다', () {
-        // Arrange
         final json = {
+          'id': 'file-001',
           'name': 'novel.epub',
+          'type': 'epub',
           'path': '/nas/books/novel.epub',
-          'mimeType': 'application/epub+zip',
-          'size': 2048,
-          'fileType': 'epub',
+          'lastOpenedAt': null,
         };
-        // Act
         final model = FileModel.fromJson(json);
-        // Assert
+        expect(model.id, 'file-001');
         expect(model.name, 'novel.epub');
+        expect(model.type, FileType.epub);
         expect(model.path, '/nas/books/novel.epub');
-        expect(model.mimeType, 'application/epub+zip');
-        expect(model.size, 2048);
-        expect(model.fileType, FileType.epub);
+        expect(model.lastOpenedAt, isNull);
+      });
+
+      test('lastOpenedAt이 있는 JSON을 변환한다', () {
+        final json = {
+          'id': 'file-002',
+          'name': 'book.pdf',
+          'type': 'pdf',
+          'path': '/nas/docs/book.pdf',
+          'lastOpenedAt': '2026-04-27T10:00:00.000',
+        };
+        final model = FileModel.fromJson(json);
+        expect(model.lastOpenedAt, DateTime(2026, 4, 27, 10, 0));
       });
 
       test('toJson으로 Map을 반환한다', () {
-        const model = FileModel(
+        final model = FileModel(
+          id: 'file-001',
           name: 'novel.epub',
+          type: FileType.epub,
           path: '/nas/books/novel.epub',
-          mimeType: 'application/epub+zip',
-          size: 2048,
-          fileType: FileType.epub,
         );
         final json = model.toJson();
+        expect(json['id'], 'file-001');
         expect(json['name'], 'novel.epub');
+        expect(json['type'], 'epub');
         expect(json['path'], '/nas/books/novel.epub');
-        expect(json['mimeType'], 'application/epub+zip');
-        expect(json['size'], 2048);
-        expect(json['fileType'], 'epub');
+        expect(json['lastOpenedAt'], isNull);
       });
 
       test('fromJson → toJson 왕복 변환이 일치한다', () {
         final json = {
+          'id': 'file-001',
           'name': 'book.pdf',
+          'type': 'pdf',
           'path': '/nas/docs/book.pdf',
-          'mimeType': 'application/pdf',
-          'size': 1024,
-          'fileType': 'pdf',
+          'lastOpenedAt': null,
         };
         expect(FileModel.fromJson(json).toJson(), json);
       });
 
-      test('fileType이 unknown인 JSON도 변환된다', () {
+      test('type이 알 수 없는 값이면 unknown을 반환한다', () {
         final json = {
-          'name': 'readme.txt',
-          'path': '/nas/docs/readme.txt',
-          'mimeType': 'text/plain',
-          'size': 512,
-          'fileType': 'unknown',
-        };
-        final model = FileModel.fromJson(json);
-        expect(model.fileType, FileType.unknown);
-      });
-
-      test('fileType이 알 수 없는 값이면 unknown을 반환한다', () {
-        final json = {
+          'id': 'file-003',
           'name': 'video.mp4',
+          'type': 'video',
           'path': '/nas/videos/video.mp4',
-          'mimeType': 'video/mp4',
-          'size': 4096,
-          'fileType': 'video',
+          'lastOpenedAt': null,
         };
         final model = FileModel.fromJson(json);
-        expect(model.fileType, FileType.unknown);
-      });
-
-      test('size가 double로 오면 int로 변환된다', () {
-        final json = {
-          'name': 'book.pdf',
-          'path': '/nas/docs/book.pdf',
-          'mimeType': 'application/pdf',
-          'size': 1024.0,
-          'fileType': 'pdf',
-        };
-        final model = FileModel.fromJson(json);
-        expect(model.size, 1024);
+        expect(model.type, FileType.unknown);
       });
     });
   });

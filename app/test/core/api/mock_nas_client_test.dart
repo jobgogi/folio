@@ -26,10 +26,10 @@ void main() {
         expect(result.first, isA<FileModel>());
       });
 
-      test('반환된 파일의 fileType은 pdf 또는 epub 또는 unknown이다', () async {
+      test('반환된 파일의 type은 pdf 또는 epub 또는 unknown이다', () async {
         final result = await client.getFiles('/');
         for (final file in result) {
-          expect(FileType.values, contains(file.fileType));
+          expect(FileType.values, contains(file.type));
         }
       });
 
@@ -41,13 +41,13 @@ void main() {
       test('pdf 경로에서는 pdf 파일만 반환한다', () async {
         final result = await client.getFiles('/pdf');
         expect(result, isNotEmpty);
-        expect(result.every((f) => f.fileType == FileType.pdf), isTrue);
+        expect(result.every((f) => f.type == FileType.pdf), isTrue);
       });
 
       test('epub 경로에서는 epub 파일만 반환한다', () async {
         final result = await client.getFiles('/epub');
         expect(result, isNotEmpty);
-        expect(result.every((f) => f.fileType == FileType.epub), isTrue);
+        expect(result.every((f) => f.type == FileType.epub), isTrue);
       });
     });
 
@@ -65,7 +65,7 @@ void main() {
       test('epub 파일을 경로로 조회한다', () async {
         final result = await client.getFile('/epub/novel.epub');
         expect(result, isNotNull);
-        expect(result!.fileType, FileType.epub);
+        expect(result!.type, FileType.epub);
       });
 
       test('존재하지 않는 경로는 null을 반환한다', () async {
@@ -79,11 +79,10 @@ void main() {
         // Arrange
         const customFiles = [
           FileModel(
+            id: 'custom-001',
             name: 'custom.pdf',
+            type: FileType.pdf,
             path: '/custom/custom.pdf',
-            mimeType: 'application/pdf',
-            size: 512,
-            fileType: FileType.pdf,
           ),
         ];
         final customClient = MockNasClient(files: customFiles);
@@ -97,17 +96,16 @@ void main() {
       test('주입된 파일을 경로로 조회할 수 있다', () async {
         const customFiles = [
           FileModel(
+            id: 'custom-002',
             name: 'custom.epub',
+            type: FileType.epub,
             path: '/custom/custom.epub',
-            mimeType: 'application/epub+zip',
-            size: 512,
-            fileType: FileType.epub,
           ),
         ];
         final customClient = MockNasClient(files: customFiles);
         final result = await customClient.getFile('/custom/custom.epub');
         expect(result, isNotNull);
-        expect(result!.fileType, FileType.epub);
+        expect(result!.type, FileType.epub);
       });
     });
   });

@@ -1,49 +1,51 @@
 import 'package:app/core/file_detector.dart';
 
 class FileModel {
+  final String id;
   final String name;
+  final FileType type;
   final String path;
-  final String mimeType;
-  final int size;
-  final FileType fileType;
+  final DateTime? lastOpenedAt;
 
   const FileModel({
+    required this.id,
     required this.name,
+    required this.type,
     required this.path,
-    required this.mimeType,
-    required this.size,
-    required this.fileType,
+    this.lastOpenedAt,
   });
 
   factory FileModel.fromJson(Map<String, dynamic> json) {
     return FileModel(
+      id: json['id'] as String,
       name: json['name'] as String,
+      type: FileType.values.asNameMap()[json['type']] ?? FileType.unknown,
       path: json['path'] as String,
-      mimeType: json['mimeType'] as String,
-      size: (json['size'] as num).toInt(),
-      fileType: FileType.values.asNameMap()[json['fileType']] ?? FileType.unknown,
+      lastOpenedAt: json['lastOpenedAt'] != null
+          ? DateTime.parse(json['lastOpenedAt'] as String)
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
+      'type': type.name,
       'path': path,
-      'mimeType': mimeType,
-      'size': size,
-      'fileType': fileType.name,
+      'lastOpenedAt': lastOpenedAt?.toIso8601String(),
     };
   }
 
   @override
   bool operator ==(Object other) =>
       other is FileModel &&
+      id == other.id &&
       name == other.name &&
+      type == other.type &&
       path == other.path &&
-      mimeType == other.mimeType &&
-      size == other.size &&
-      fileType == other.fileType;
+      lastOpenedAt == other.lastOpenedAt;
 
   @override
-  int get hashCode => Object.hash(name, path, mimeType, size, fileType);
+  int get hashCode => Object.hash(id, name, type, path, lastOpenedAt);
 }
