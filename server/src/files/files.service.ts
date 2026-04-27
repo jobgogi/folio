@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { FileDto } from './dto/file.dto';
 
 const MOCK_FILES: FileDto[] = [
@@ -14,7 +14,9 @@ export class FilesService {
     return MOCK_FILES;
   }
 
-  async findOne(id: string): Promise<FileDto | null> {
-    return MOCK_FILES.find((f) => f.id === id) ?? null;
+  async findOne(id: string): Promise<FileDto> {
+    const file = MOCK_FILES.find((f) => f.id === id) ?? null;
+    if (!file) throw new NotFoundException(`File ${id} not found`);
+    return file;
   }
 }

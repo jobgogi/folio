@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundException } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileDto } from './dto/file.dto';
 
@@ -51,9 +52,8 @@ describe('FilesService', () => {
       expect(result!.id).toBe(target.id);
     });
 
-    it('존재하지 않는 id는 null을 반환한다', async () => {
-      const result = await service.findOne('not-exist-id');
-      expect(result).toBeNull();
+    it('존재하지 않는 id는 NotFoundException을 던진다', async () => {
+      await expect(service.findOne('not-exist-id')).rejects.toThrow(NotFoundException);
     });
   });
 });
