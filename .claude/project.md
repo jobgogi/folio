@@ -89,8 +89,9 @@ folio/
 └── .claude/
 
 ## Phase 목록
-- Phase 1 : 기반 설정 + FileDetector + NAS 클라이언트 기본 구조
-- Phase 2 : PDF 뷰어
-- Phase 3 : ePub 뷰어
-- Phase 4 : 공통 기능 (북마크, 진행률, 다크모드)
-- Phase 5 : NAS 연동 + Docker 배포
+- Phase 1 : 기반 설정 + FileDetector + FileModel + NasClient + FilesModule + AuthModule ✅ 완료
+- Phase 2 : Docker Compose + Prisma + FileScanService + FileSyncService + FilesModule API
+- Phase 3 : PDF 뷰어
+- Phase 4 : ePub 뷰어
+- Phase 5 : 공통 기능 (북마크, 진행률, 다크모드)
+- Phase 6 : NAS 연동 + Docker 배포
