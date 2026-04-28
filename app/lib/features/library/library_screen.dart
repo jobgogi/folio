@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/file_detector.dart';
 import '../../core/widgets/app_empty_view.dart';
+import '../../core/widgets/app_error_view.dart';
 import '../../core/widgets/app_loading_spinner.dart';
 import '../../core/widgets/book_cover_widget.dart';
 import 'book_model.dart';
@@ -43,6 +44,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
@@ -96,7 +98,10 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
       return const AppLoadingSpinner(fullScreen: true);
     }
     if (state is LibraryFailure) {
-      return Center(child: Text(state.message));
+      return AppErrorView(
+        message: state.message,
+        onRetry: () => ref.read(libraryProvider.notifier).fetch(_sort),
+      );
     }
     if (state is LibraryLoaded) {
       if (state.books.isEmpty) {
