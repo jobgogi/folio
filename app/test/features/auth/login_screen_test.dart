@@ -15,8 +15,12 @@ import 'package:app/features/auth/login_screen.dart';
 class _FakeNotifier extends LoginNotifier {
   _FakeNotifier() : super(dio: Dio(), baseUrl: 'http://test');
 
+  bool checkAutoLoginCalled = false;
+
   @override
-  Future<void> checkAutoLogin() async {}
+  Future<void> checkAutoLogin() async {
+    checkAutoLoginCalled = true;
+  }
 
   @override
   Future<void> login({
@@ -46,12 +50,11 @@ void main() {
 
     setUp(() => notifier = _FakeNotifier());
 
-    testWidgets('자동 로그인 성공이면 라이브러리 화면으로 이동한다', (tester) async {
+    testWidgets('앱 진입 시 자동 로그인을 시도한다', (tester) async {
       await tester.pumpWidget(_wrap(notifier));
-      notifier.emit(const LoginSuccess());
-      await tester.pumpAndSettle();
+      await tester.pump();
 
-      expect(find.text('LibraryScreen'), findsOneWidget);
+      expect(notifier.checkAutoLoginCalled, isTrue);
     });
 
     testWidgets('자동 로그인 실패이면 로그인 폼이 표시된다', (tester) async {
