@@ -126,5 +126,18 @@ void main() {
       );
       expect(badge.color, AppColors.epubBadge);
     });
+
+    testWidgets('unknown 타입이면 라이트 테마 secondary 색상의 띠지가 표시된다', (tester) async {
+      await tester.pumpWidget(
+        _wrap(BookCoverWidget(
+          thumbnail: null,
+          fileType: FileType.unknown,
+        )),
+      );
+      final badge = tester.widget<ColoredBox>(
+        find.byKey(const Key('book_cover_badge')),
+      );
+      expect(badge.color, AppColors.light.secondary);
+    });
   });
 }

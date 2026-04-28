@@ -22,19 +22,22 @@ class BookCoverWidget extends StatelessWidget {
   final double width;
   final double height;
 
-  Color get _badgeColor {
+  Color _badgeColor(AppColors colors) {
     switch (fileType) {
       case FileType.pdf:
         return AppColors.pdfBadge;
       case FileType.epub:
         return AppColors.epubBadge;
       case FileType.unknown:
-        return AppColors.light.secondary;
+        return colors.secondary;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = isDark ? AppColors.dark : AppColors.light;
+
     return SizedBox(
       width: width,
       height: height,
@@ -43,14 +46,14 @@ class BookCoverWidget extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            _buildCover(),
+            _buildCover(colors),
             Positioned(
               left: 0,
               right: 0,
               bottom: 0,
               child: ColoredBox(
                 key: const Key('book_cover_badge'),
-                color: _badgeColor,
+                color: _badgeColor(colors),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Text(
@@ -71,14 +74,14 @@ class BookCoverWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildCover() {
+  Widget _buildCover(AppColors colors) {
     if (thumbnail != null) {
       return Image.network(thumbnail!, fit: BoxFit.cover);
     }
-    return const ColoredBox(
-      color: Color(0xFFE5E5EA),
+    return ColoredBox(
+      color: colors.surface,
       child: Center(
-        child: Icon(Icons.menu_book, size: 40, color: Color(0xFF8E8E93)),
+        child: Icon(Icons.menu_book, size: 40, color: colors.secondary),
       ),
     );
   }
