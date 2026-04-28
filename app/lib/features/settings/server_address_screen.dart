@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/widgets/app_button.dart';
-import '../../core/widgets/app_loading_spinner.dart';
+import '../../core/widgets/app_text_field.dart';
 import 'server_address_notifier.dart';
 import 'server_address_provider.dart';
 
@@ -40,12 +40,6 @@ class _ServerAddressScreenState extends ConsumerState<ServerAddressScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(serverAddressProvider);
 
-    ref.listen<ServerAddressState>(serverAddressProvider, (_, next) {
-      if (next is ServerAddressSuccess) {
-        // 자동 이동 없이 다음 버튼 활성화만 처리
-      }
-    });
-
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -62,11 +56,9 @@ class _ServerAddressScreenState extends ConsumerState<ServerAddressScreen> {
                     ),
               ),
               const SizedBox(height: 48),
-              TextField(
+              AppTextField(
+                hint: 'http://nas.local:3000',
                 controller: _controller,
-                decoration: const InputDecoration(
-                  hintText: 'http://nas.local:3000',
-                ),
                 onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 16),
