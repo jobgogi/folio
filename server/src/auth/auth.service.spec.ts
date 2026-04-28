@@ -50,7 +50,7 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('올바른 자격증명이면 액세스 토큰과 expiresIn을 반환한다', async () => {
+    it('올바른 자격증명이면 JWT 토큰 문자열을 반환한다', async () => {
       // Arrange
       const hashed = await bcrypt.hash('password123', 10);
       mockPrisma.user.findUnique.mockResolvedValue({
@@ -63,11 +63,8 @@ describe('AuthService', () => {
       // Act
       const result = await service.login(dto);
       // Assert
-      expect(result).toHaveProperty('accessToken');
-      expect(typeof result.accessToken).toBe('string');
-      expect(result.accessToken.length).toBeGreaterThan(0);
-      expect(result).toHaveProperty('expiresIn');
-      expect(typeof result.expiresIn).toBe('string');
+      expect(typeof result).toBe('string');
+      expect(result.split('.')).toHaveLength(3);
     });
 
     it('존재하지 않는 username이면 UnauthorizedException을 던진다', async () => {
@@ -88,7 +85,7 @@ describe('AuthService', () => {
       await expect(service.login(dto)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('반환된 토큰은 JWT 형식이다 (header.payload.signature)', async () => {
+    it('반환된 토큰의 payload에 username이 포함된다', async () => {
       const hashed = await bcrypt.hash('password123', 10);
       mockPrisma.user.findUnique.mockResolvedValue({
         id: 'uuid-1',
@@ -97,27 +94,14 @@ describe('AuthService', () => {
         role: 'ROOT',
       });
       const dto: LoginDto = { username: 'admin', password: 'password123' };
-      const result = await service.login(dto);
-      expect(result.accessToken.split('.')).toHaveLength(3);
-    });
-
-    it('발급된 토큰의 payload에 username이 포함된다', async () => {
-      const hashed = await bcrypt.hash('password123', 10);
-      mockPrisma.user.findUnique.mockResolvedValue({
-        id: 'uuid-1',
-        username: 'admin',
-        password: hashed,
-        role: 'ROOT',
-      });
-      const dto: LoginDto = { username: 'admin', password: 'password123' };
-      const result = await service.login(dto);
+      const token = await service.login(dto);
       const payload = JSON.parse(
-        Buffer.from(result.accessToken.split('.')[1], 'base64').toString(),
+        Buffer.from(token.split('.')[1], 'base64').toString(),
       );
       expect(payload.username).toBe('admin');
     });
 
-    it('발급된 토큰의 payload에 role이 포함된다', async () => {
+    it('반환된 토큰의 payload에 role이 포함된다', async () => {
       const hashed = await bcrypt.hash('password123', 10);
       mockPrisma.user.findUnique.mockResolvedValue({
         id: 'uuid-1',
@@ -126,11 +110,100 @@ describe('AuthService', () => {
         role: 'ROOT',
       });
       const dto: LoginDto = { username: 'admin', password: 'password123' };
-      const result = await service.login(dto);
+      const token = await service.login(dto);
       const payload = JSON.parse(
-        Buffer.from(result.accessToken.split('.')[1], 'base64').toString(),
+        Buffer.from(token.split('.')[1], 'base64').toString(),
       );
       expect(payload.role).toBe('ROOT');
+    });
+  });
+
+  describe('getMe', () => {
+    it('sub로 유저 정보를 반환한다', async () => {
+      // Arrange
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'uuid-1',
+        username: 'admin',
+        role: 'ROOT',
+        avatar: null,
+      });
+      // Act
+      const result = await service.getMe('uuid-1');
+      // Assert
+      expect(result).toMatchObject({
+        id: 'uuid-1',
+        username: 'admin',
+        role: 'ROOT',
+        avatar: null,
+      });
+    });
+
+    it('반환된 유저 정보에 password가 포함되지 않는다', async () => {
+      // Arrange
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'uuid-1',
+        username: 'admin',
+        role: 'ROOT',
+        avatar: null,
+      });
+      // Act
+      const result = await service.getMe('uuid-1');
+      // Assert
+      expect(result).not.toHaveProperty('password');
+    });
+
+    it('존재하지 않는 sub이면 UnauthorizedException을 던진다', async () => {
+      // Arrange
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+      // Act & Assert
+      await expect(service.getMe('not-exist')).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+  });
+
+  describe('getCookieOptions', () => {
+    it('개발 환경에서는 secure: false를 반환한다', async () => {
+      // Arrange
+      const module = await Test.createTestingModule({
+        imports: [JwtModule.register({ secret: TEST_SECRET })],
+        providers: [
+          AuthService,
+          {
+            provide: authConfig.KEY,
+            useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h', nodeEnv: 'development' },
+          },
+          { provide: PrismaService, useValue: mockPrisma },
+        ],
+      }).compile();
+      const devService = module.get<AuthService>(AuthService);
+      // Act
+      const options = devService.getCookieOptions();
+      // Assert
+      expect(options.secure).toBe(false);
+      expect(options.httpOnly).toBe(true);
+      expect(options.sameSite).toBe('lax');
+      expect(typeof options.maxAge).toBe('number');
+    });
+
+    it('프로덕션 환경에서는 secure: true를 반환한다', async () => {
+      // Arrange
+      const module = await Test.createTestingModule({
+        imports: [JwtModule.register({ secret: TEST_SECRET })],
+        providers: [
+          AuthService,
+          {
+            provide: authConfig.KEY,
+            useValue: { jwtSecret: TEST_SECRET, jwtExpiresIn: '1h', nodeEnv: 'production' },
+          },
+          { provide: PrismaService, useValue: mockPrisma },
+        ],
+      }).compile();
+      const prodService = module.get<AuthService>(AuthService);
+      // Act
+      const options = prodService.getCookieOptions();
+      // Assert
+      expect(options.secure).toBe(true);
     });
   });
 });
