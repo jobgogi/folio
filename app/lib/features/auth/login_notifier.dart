@@ -43,25 +43,31 @@ class LoginNotifier extends StateNotifier<LoginState> {
     required String username,
     required String password,
   }) async {
+    if (_baseUrl.isEmpty) return;
     state = const LoginLoading();
     try {
       await _dio.post(
         '$_baseUrl/v1/auth/login',
         data: {'username': username, 'password': password},
       );
+      if (!mounted) return;
       state = const LoginSuccess();
-    } on DioException {
+    } catch (_) {
+      if (!mounted) return;
       state = const LoginFailure('로그인에 실패했습니다.');
     }
   }
 
   /// @description GET /v1/auth/me 호출로 자동 로그인 여부를 확인한다.
   Future<void> checkAutoLogin() async {
+    if (_baseUrl.isEmpty) return;
     state = const LoginLoading();
     try {
       await _dio.get('$_baseUrl/v1/auth/me');
+      if (!mounted) return;
       state = const LoginSuccess();
-    } on DioException {
+    } catch (_) {
+      if (!mounted) return;
       state = const LoginIdle();
     }
   }

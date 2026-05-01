@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/providers/storage_providers.dart';
 import '../../core/theme/theme_provider.dart';
 import '../../core/widgets/app_button.dart';
 import 'settings_notifier.dart';
@@ -29,6 +30,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<String>>(savedServerAddressProvider, (prev, next) {
+      final wasEmpty = prev?.valueOrNull?.isEmpty ?? true;
+      final isNowAvailable = next.valueOrNull?.isNotEmpty ?? false;
+      if (wasEmpty && isNowAvailable) {
+        ref.read(settingsProvider.notifier).fetchProfile();
+      }
+    });
+
     final state = ref.watch(settingsProvider);
     final themeMode = ref.watch(themeProvider);
 

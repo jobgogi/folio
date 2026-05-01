@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/providers/storage_providers.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_text_field.dart';
 import 'login_notifier.dart';
@@ -39,6 +40,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<String>>(savedServerAddressProvider, (prev, next) {
+      final wasEmpty = prev?.valueOrNull?.isEmpty ?? true;
+      final isNowAvailable = next.valueOrNull?.isNotEmpty ?? false;
+      if (wasEmpty && isNowAvailable) {
+        ref.read(loginProvider.notifier).checkAutoLogin();
+      }
+    });
+
     final state = ref.watch(loginProvider);
 
     ref.listen<LoginState>(loginProvider, (_, next) {

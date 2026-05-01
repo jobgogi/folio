@@ -51,8 +51,10 @@ class BookDetailNotifier extends StateNotifier<BookDetailState> {
         '$_baseUrl/v1/books/$id',
         data: {'title': title, 'author': author},
       );
+      if (!mounted) return;
       state = const BookDetailSuccess();
-    } on DioException {
+    } catch (_) {
+      if (!mounted) return;
       state = const BookDetailFailure('저장에 실패했습니다.');
     }
   }

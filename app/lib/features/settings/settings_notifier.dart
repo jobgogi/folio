@@ -76,9 +76,11 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   /// @description GET /v1/auth/me 호출로 사용자 프로필을 불러온다.
   /// @returns void
   Future<void> fetchProfile() async {
+    if (_baseUrl.isEmpty) return;
     state = const SettingsLoading();
     try {
       final res = await _dio.get('$_baseUrl/v1/auth/me');
+      if (!mounted) return;
       final data = res.data as Map<String, dynamic>;
       state = SettingsLoaded(
         SettingsProfile(
@@ -86,7 +88,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
           avatar: data['avatar'] as String?,
         ),
       );
-    } on DioException {
+    } catch (_) {
+      if (!mounted) return;
       state = const SettingsFailure('프로필을 불러오는데 실패했습니다.');
     }
   }
@@ -100,6 +103,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     state = SettingsSyncing(profile);
     try {
       final res = await _dio.post('$_baseUrl/v1/sync');
+      if (!mounted) return;
       final data = res.data as Map<String, dynamic>;
       // 서버가 syncAt 필드를 내려주면 해당 값으로 교체할 것
       state = SettingsSynced(
@@ -109,7 +113,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
         updated: (data['updated'] as int?) ?? 0,
         deleted: (data['deleted'] as int?) ?? 0,
       );
-    } on DioException {
+    } catch (_) {
+      if (!mounted) return;
       state = SettingsSyncFailed(
         profile: profile,
         message: '동기화에 실패했습니다.',
