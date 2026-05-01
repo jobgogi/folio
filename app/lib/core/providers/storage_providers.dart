@@ -6,6 +6,7 @@
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -16,15 +17,21 @@ final savedServerAddressProvider = FutureProvider<String>((ref) async {
   return await storage.read(key: 'server_address') ?? '';
 });
 
-/// @description 앱 전역에서 공유하는 CookieJar — 로그인 쿠키를 모든 요청에 유지한다.
+/// @description 앱 전역에서 공유하는 CookieJar — 네이티브 플랫폼 전용.
 /// @returns [CookieJar]
 final cookieJarProvider = Provider<CookieJar>((_) => CookieJar());
 
-/// @description CookieJar가 연결된 공유 Dio 인스턴스를 반환한다.
-/// @returns [Dio] 쿠키 인터셉터가 적용된 Dio
+/// @description 공유 Dio 인스턴스를 반환한다.
+/// Web: 브라우저가 쿠키를 관리하므로 withCredentials만 설정.
+/// Native: CookieJar + CookieManager로 쿠키를 직접 관리.
+/// @returns [Dio]
 final sharedDioProvider = Provider<Dio>((ref) {
   final dio = Dio();
-  final jar = ref.watch(cookieJarProvider);
-  dio.interceptors.add(CookieManager(jar));
+  if (kIsWeb) {
+    dio.options.extra['withCredentials'] = true;
+  } else {
+    final jar = ref.watch(cookieJarProvider);
+    dio.interceptors.add(CookieManager(jar));
+  }
   return dio;
 });
