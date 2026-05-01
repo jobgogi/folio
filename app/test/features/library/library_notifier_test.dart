@@ -3,6 +3,7 @@
 /// @since 2026.04.28
 /// @version 1.0.0
 /// @see LibraryNotifier
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -67,6 +68,22 @@ class _MockAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+class _DelayedAdapter implements HttpClientAdapter {
+  _DelayedAdapter(this._response);
+  final Future<ResponseBody> _response;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<dynamic>? cancelFuture,
+  ) =>
+      _response;
+
+  @override
+  void close({bool force = false}) {}
+}
+
 void main() {
   group('BookModel', () {
     test('thumbnail이 null이면 null을 반환한다', () {
@@ -89,6 +106,33 @@ void main() {
     });
 
     group('fetch', () {
+      test('baseUrl이 비어있으면 Idle 상태를 유지한다', () async {
+        // Arrange
+        final emptyNotifier = LibraryNotifier(dio: dio, baseUrl: '');
+        dio.httpClientAdapter = _MockAdapter(booksPerPage: 2);
+        // Act
+        await emptyNotifier.fetch(BookSort.name);
+        // Assert — 요청이 발생하지 않고 Idle 유지
+        expect(emptyNotifier.state, isA<LibraryIdle>());
+      });
+
+      test('dispose 후 응답이 와도 state를 변경하지 않는다', () async {
+        // Arrange — 응답을 지연시키는 adapter
+        final completer = Completer<ResponseBody>();
+        dio.httpClientAdapter = _DelayedAdapter(completer.future);
+        final fetchFuture = notifier.fetch(BookSort.name);
+        expect(notifier.state, isA<LibraryLoading>());
+        // Act — 응답 전에 dispose
+        notifier.dispose();
+        completer.complete(ResponseBody.fromString(
+          jsonEncode({'books': [], 'hasMore': false}),
+          200,
+          headers: {Headers.contentTypeHeader: ['application/json']},
+        ));
+        await fetchFuture;
+        // Assert — dispose 후 state 변경 없음 (크래시 없음)
+      });
+
       test('책 목록 조회 성공이면 LibraryLoaded 상태가 된다', () async {
         // Arrange
         dio.httpClientAdapter = _MockAdapter(booksPerPage: 2);

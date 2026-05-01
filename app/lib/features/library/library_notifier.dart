@@ -64,12 +64,14 @@ class LibraryNotifier extends StateNotifier<LibraryState> {
         '$_baseUrl/v1/books',
         queryParameters: {'sort': sort.value, 'page': _currentPage},
       );
+      if (!mounted) return;
       final data = res.data as Map<String, dynamic>;
       final books = (data['books'] as List)
           .map((e) => BookModel.fromJson(e as Map<String, dynamic>))
           .toList();
       state = LibraryLoaded(books, hasMore: data['hasMore'] as bool);
     } catch (_) {
+      if (!mounted) return;
       state = const LibraryFailure('책 목록을 불러오는데 실패했습니다.');
     }
   }
@@ -87,6 +89,7 @@ class LibraryNotifier extends StateNotifier<LibraryState> {
         '$_baseUrl/v1/books',
         queryParameters: {'sort': _currentSort.value, 'page': _currentPage},
       );
+      if (!mounted) return;
       final data = res.data as Map<String, dynamic>;
       final newBooks = (data['books'] as List)
           .map((e) => BookModel.fromJson(e as Map<String, dynamic>))
@@ -96,6 +99,7 @@ class LibraryNotifier extends StateNotifier<LibraryState> {
         hasMore: data['hasMore'] as bool,
       );
     } catch (_) {
+      if (!mounted) return;
       _currentPage--;
     } finally {
       _isLoadingMore = false;
