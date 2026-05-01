@@ -9,9 +9,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'book_model.dart';
 
 enum BookSort {
-  recentlyRead('recently_read'),
+  recentlyRead('recent_opened'),
   name('name'),
-  recentlyAdded('recently_added');
+  recentlyAdded('recent_added');
 
   const BookSort(this.value);
   final String value;
