@@ -3,7 +3,6 @@
 /// @since 2026.04.28
 /// @version 1.0.0
 /// @see LoginNotifier
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/providers/storage_providers.dart';
@@ -11,7 +10,7 @@ import 'login_notifier.dart';
 
 final loginProvider =
     StateNotifierProvider.autoDispose<LoginNotifier, LoginState>((ref) {
-  final baseUrl =
-      ref.watch(savedServerAddressProvider).valueOrNull ?? '';
-  return LoginNotifier(dio: Dio(), baseUrl: baseUrl);
+  final baseUrl = ref.watch(savedServerAddressProvider).valueOrNull ?? '';
+  final dio = ref.watch(sharedDioProvider);
+  return LoginNotifier(dio: dio, baseUrl: baseUrl);
 });
