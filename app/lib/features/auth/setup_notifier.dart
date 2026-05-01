@@ -59,8 +59,10 @@ class SetupNotifier extends StateNotifier<SetupState> {
         '$_baseUrl/v1/auth/setup',
         data: {'username': username, 'password': password},
       );
+      if (!mounted) return;
       state = const SetupSuccess();
-    } on DioException {
+    } catch (_) {
+      if (!mounted) return;
       state = const SetupFailure('계정 생성에 실패했습니다.');
     }
   }

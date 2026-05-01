@@ -9,9 +9,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'book_model.dart';
 
 enum BookSort {
-  recentlyRead('recently_read'),
+  recentlyRead('recent_opened'),
   name('name'),
-  recentlyAdded('recently_added');
+  recentlyAdded('recent_added');
 
   const BookSort(this.value);
   final String value;
@@ -50,10 +50,12 @@ class LibraryNotifier extends StateNotifier<LibraryState> {
   final String _baseUrl;
   int _currentPage = 1;
   BookSort _currentSort = BookSort.recentlyRead;
+  bool _isLoadingMore = false;
 
   /// @description 책 목록을 첫 페이지부터 조회한다.
   /// @param sort 정렬 옵션
   Future<void> fetch(BookSort sort) async {
+    if (_baseUrl.isEmpty) return;
     _currentSort = sort;
     _currentPage = 1;
     state = const LibraryLoading();
@@ -62,27 +64,32 @@ class LibraryNotifier extends StateNotifier<LibraryState> {
         '$_baseUrl/v1/books',
         queryParameters: {'sort': sort.value, 'page': _currentPage},
       );
+      if (!mounted) return;
       final data = res.data as Map<String, dynamic>;
       final books = (data['books'] as List)
           .map((e) => BookModel.fromJson(e as Map<String, dynamic>))
           .toList();
       state = LibraryLoaded(books, hasMore: data['hasMore'] as bool);
-    } on DioException {
+    } catch (_) {
+      if (!mounted) return;
       state = const LibraryFailure('책 목록을 불러오는데 실패했습니다.');
     }
   }
 
   /// @description 다음 페이지 책 목록을 기존 목록에 추가한다.
   Future<void> loadMore() async {
+    if (_baseUrl.isEmpty) return;
     final current = state;
-    if (current is! LibraryLoaded || !current.hasMore) return;
+    if (current is! LibraryLoaded || !current.hasMore || _isLoadingMore) return;
 
+    _isLoadingMore = true;
     _currentPage++;
     try {
       final res = await _dio.get(
         '$_baseUrl/v1/books',
         queryParameters: {'sort': _currentSort.value, 'page': _currentPage},
       );
+      if (!mounted) return;
       final data = res.data as Map<String, dynamic>;
       final newBooks = (data['books'] as List)
           .map((e) => BookModel.fromJson(e as Map<String, dynamic>))
@@ -91,8 +98,11 @@ class LibraryNotifier extends StateNotifier<LibraryState> {
         [...current.books, ...newBooks],
         hasMore: data['hasMore'] as bool,
       );
-    } on DioException {
+    } catch (_) {
+      if (!mounted) return;
       _currentPage--;
+    } finally {
+      _isLoadingMore = false;
     }
   }
 

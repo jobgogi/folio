@@ -9,12 +9,14 @@ class BookModel {
     required this.title,
     required this.author,
     this.thumbnail,
+    this.mimeType = '',
   });
 
   final String id;
   final String title;
   final String author;
   final String? thumbnail;
+  final String mimeType;
 
   /// @description JSON으로부터 BookModel을 생성한다.
   /// @param json API 응답 Map
@@ -24,5 +26,6 @@ class BookModel {
         title: json['title'] as String,
         author: json['author'] as String,
         thumbnail: json['thumbnail'] as String?,
+        mimeType: json['mimeType'] as String? ?? '',
       );
 }
