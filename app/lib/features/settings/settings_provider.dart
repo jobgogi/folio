@@ -10,7 +10,7 @@ import 'settings_notifier.dart';
 
 final settingsProvider =
     StateNotifierProvider.autoDispose<SettingsNotifier, SettingsState>((ref) {
-  final baseUrl = ref.watch(savedServerAddressProvider).valueOrNull ?? '';
+  final baseUrl = ref.watch(serverBaseUrlProvider);
   final dio = ref.watch(sharedDioProvider);
   return SettingsNotifier(dio: dio, baseUrl: baseUrl);
 });

@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/providers/storage_providers.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'features/auth/login_screen.dart';
@@ -23,6 +24,15 @@ class FolioApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 앱 시작 시 저장된 주소를 serverBaseUrlProvider로 초기화
+    ref.listen<AsyncValue<String>>(savedServerAddressProvider, (_, next) {
+      next.whenData((addr) {
+        if (addr.isNotEmpty && ref.read(serverBaseUrlProvider).isEmpty) {
+          ref.read(serverBaseUrlProvider.notifier).state = addr;
+        }
+      });
+    });
+
     final themeMode = ref.watch(themeProvider);
     return MaterialApp(
       title: 'folio',

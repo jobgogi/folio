@@ -10,7 +10,7 @@ import 'login_notifier.dart';
 
 final loginProvider =
     StateNotifierProvider.autoDispose<LoginNotifier, LoginState>((ref) {
-  final baseUrl = ref.watch(savedServerAddressProvider).valueOrNull ?? '';
+  final baseUrl = ref.watch(serverBaseUrlProvider);
   final dio = ref.watch(sharedDioProvider);
   return LoginNotifier(dio: dio, baseUrl: baseUrl);
 });

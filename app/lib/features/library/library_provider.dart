@@ -10,7 +10,7 @@ import 'library_notifier.dart';
 
 final libraryProvider =
     StateNotifierProvider.autoDispose<LibraryNotifier, LibraryState>((ref) {
-  final baseUrl = ref.watch(savedServerAddressProvider).valueOrNull ?? '';
+  final baseUrl = ref.watch(serverBaseUrlProvider);
   final dio = ref.watch(sharedDioProvider);
   return LibraryNotifier(dio: dio, baseUrl: baseUrl);
 });

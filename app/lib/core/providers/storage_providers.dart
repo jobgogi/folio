@@ -17,6 +17,11 @@ final savedServerAddressProvider = FutureProvider<String>((ref) async {
   return await storage.read(key: 'server_address') ?? '';
 });
 
+/// @description 현재 활성 서버 주소 — 앱 내 모든 API 요청의 baseUrl 출처.
+/// savedServerAddressProvider 초기 로드 완료 또는 주소 저장 시 갱신된다.
+/// @returns [String] 현재 서버 주소, 미설정 시 빈 문자열
+final serverBaseUrlProvider = StateProvider<String>((_) => '');
+
 /// @description 앱 전역에서 공유하는 CookieJar — 네이티브 플랫폼 전용.
 /// @returns [CookieJar]
 final cookieJarProvider = Provider<CookieJar>((_) => CookieJar());

@@ -18,6 +18,6 @@ final serverAddressProvider =
       storage: const FlutterSecureStorage(),
     ),
     dio: Dio(),
-    onSaved: () => ref.invalidate(savedServerAddressProvider),
+    onSaved: (addr) => ref.read(serverBaseUrlProvider.notifier).state = addr,
   ),
 );

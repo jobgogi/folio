@@ -13,7 +13,7 @@ import '../../core/widgets/app_error_view.dart';
 import '../../core/widgets/app_loading_spinner.dart';
 import '../../core/widgets/book_cover_widget.dart';
 import 'book_model.dart';
-import '../../core/providers/storage_providers.dart';
+import '../../core/providers/storage_providers.dart' show serverBaseUrlProvider;
 import 'library_notifier.dart';
 import 'library_provider.dart';
 
@@ -65,10 +65,8 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue<String>>(savedServerAddressProvider, (prev, next) {
-      final wasEmpty = prev?.valueOrNull?.isEmpty ?? true;
-      final isNowAvailable = next.valueOrNull?.isNotEmpty ?? false;
-      if (wasEmpty && isNowAvailable) {
+    ref.listen<String>(serverBaseUrlProvider, (prev, next) {
+      if ((prev?.isEmpty ?? true) && next.isNotEmpty) {
         ref.read(libraryProvider.notifier).fetch(_sort);
       }
     });

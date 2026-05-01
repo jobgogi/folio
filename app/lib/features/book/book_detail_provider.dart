@@ -10,7 +10,7 @@ import 'book_detail_notifier.dart';
 
 final bookDetailProvider =
     StateNotifierProvider.autoDispose<BookDetailNotifier, BookDetailState>((ref) {
-  final baseUrl = ref.watch(savedServerAddressProvider).valueOrNull ?? '';
+  final baseUrl = ref.watch(serverBaseUrlProvider);
   final dio = ref.watch(sharedDioProvider);
   return BookDetailNotifier(dio: dio, baseUrl: baseUrl);
 });
