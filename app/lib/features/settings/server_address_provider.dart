@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../../core/providers/storage_providers.dart';
 import 'server_address_notifier.dart';
 import 'server_address_repository.dart';
 
@@ -17,5 +18,6 @@ final serverAddressProvider =
       storage: const FlutterSecureStorage(),
     ),
     dio: Dio(),
+    onSaved: () => ref.invalidate(savedServerAddressProvider),
   ),
 );
