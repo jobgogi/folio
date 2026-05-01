@@ -45,7 +45,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Widget _buildBody(SettingsState state, ThemeMode themeMode) {
-    final profile = _extractProfile(state);
+    final profile = ref.read(settingsProvider.notifier).currentProfile;
 
     return ListView(
       children: [
@@ -55,17 +55,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         const Divider(height: 1),
         _SyncSection(state: state),
         const Divider(height: 1),
-        _AccountSection(),
+        const _AccountSection(),
       ],
     );
-  }
-
-  SettingsProfile? _extractProfile(SettingsState state) {
-    if (state is SettingsLoaded) return state.profile;
-    if (state is SettingsSyncing) return state.profile;
-    if (state is SettingsSynced) return state.profile;
-    if (state is SettingsSyncFailed) return state.profile;
-    return null;
   }
 }
 
@@ -243,6 +235,8 @@ class _SyncResult extends StatelessWidget {
 }
 
 class _AccountSection extends ConsumerWidget {
+  const _AccountSection();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(

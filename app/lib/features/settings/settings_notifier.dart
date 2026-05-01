@@ -74,6 +74,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   final String _baseUrl;
 
   /// @description GET /v1/auth/me 호출로 사용자 프로필을 불러온다.
+  /// @returns void
   Future<void> fetchProfile() async {
     state = const SettingsLoading();
     try {
@@ -91,14 +92,16 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   }
 
   /// @description POST /v1/sync 호출로 라이브러리를 동기화한다.
+  /// @returns void
   Future<void> sync() async {
-    final profile = _currentProfile;
+    final profile = currentProfile;
     if (profile == null) return;
 
     state = SettingsSyncing(profile);
     try {
       final res = await _dio.post('$_baseUrl/v1/sync');
       final data = res.data as Map<String, dynamic>;
+      // 서버가 syncAt 필드를 내려주면 해당 값으로 교체할 것
       state = SettingsSynced(
         profile: profile,
         lastSyncAt: DateTime.now(),
@@ -115,13 +118,17 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   }
 
   /// @description 로그아웃 처리한다.
+  /// @returns void
   void logout() {
     state = const SettingsLoggedOut();
   }
 
-  SettingsProfile? get _currentProfile {
+  /// @description 현재 상태에서 프로필을 추출한다. 프로필이 없는 상태이면 null을 반환한다.
+  /// @returns [SettingsProfile?] 현재 프로필, 없으면 null
+  SettingsProfile? get currentProfile {
     final s = state;
     if (s is SettingsLoaded) return s.profile;
+    if (s is SettingsSyncing) return s.profile;
     if (s is SettingsSynced) return s.profile;
     if (s is SettingsSyncFailed) return s.profile;
     return null;
