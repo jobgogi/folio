@@ -50,6 +50,7 @@ class LibraryNotifier extends StateNotifier<LibraryState> {
   final String _baseUrl;
   int _currentPage = 1;
   BookSort _currentSort = BookSort.recentlyRead;
+  bool _isLoadingMore = false;
 
   /// @description 책 목록을 첫 페이지부터 조회한다.
   /// @param sort 정렬 옵션
@@ -75,8 +76,9 @@ class LibraryNotifier extends StateNotifier<LibraryState> {
   /// @description 다음 페이지 책 목록을 기존 목록에 추가한다.
   Future<void> loadMore() async {
     final current = state;
-    if (current is! LibraryLoaded || !current.hasMore) return;
+    if (current is! LibraryLoaded || !current.hasMore || _isLoadingMore) return;
 
+    _isLoadingMore = true;
     _currentPage++;
     try {
       final res = await _dio.get(
@@ -93,6 +95,8 @@ class LibraryNotifier extends StateNotifier<LibraryState> {
       );
     } on DioException {
       _currentPage--;
+    } finally {
+      _isLoadingMore = false;
     }
   }
 

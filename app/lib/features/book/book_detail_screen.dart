@@ -63,7 +63,10 @@ class _BookDetailScreenState extends ConsumerState<BookDetailScreen> {
             Center(
               child: BookCoverWidget(
                 thumbnail: widget.book.thumbnail,
-                fileType: FileType.unknown,
+                fileType: FileDetector().detect(
+                  mimeType: widget.book.mimeType,
+                  fileName: widget.book.title,
+                ),
                 width: 160,
                 height: 220,
               ),

@@ -9,7 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/storage_providers.dart';
 import 'setup_notifier.dart';
 
-final setupProvider = StateNotifierProvider<SetupNotifier, SetupState>((ref) {
+final setupProvider =
+    StateNotifierProvider.autoDispose<SetupNotifier, SetupState>((ref) {
   final baseUrl =
       ref.watch(savedServerAddressProvider).valueOrNull ?? '';
   return SetupNotifier(dio: Dio(), baseUrl: baseUrl);

@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/file_detector.dart';
 import '../../core/widgets/app_empty_view.dart';
+import '../book/book_detail_screen.dart';
 import '../../core/widgets/app_error_view.dart';
 import '../../core/widgets/app_loading_spinner.dart';
 import '../../core/widgets/book_cover_widget.dart';
@@ -147,28 +148,37 @@ class _GridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: BookCoverWidget(
-            thumbnail: book.thumbnail,
-            fileType: FileType.unknown,
+    final fileType = FileDetector().detect(
+      mimeType: book.mimeType,
+      fileName: book.title,
+    );
+    return InkWell(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => BookDetailScreen(book: book)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: BookCoverWidget(
+              thumbnail: book.thumbnail,
+              fileType: fileType,
+            ),
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          book.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        Text(
-          book.author,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
+          const SizedBox(height: 6),
+          Text(
+            book.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          Text(
+            book.author,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -179,34 +189,43 @@ class _ListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        BookCoverWidget(
-          thumbnail: book.thumbnail,
-          fileType: FileType.unknown,
-          width: 60,
-          height: 80,
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                book.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              Text(
-                book.author,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+    final fileType = FileDetector().detect(
+      mimeType: book.mimeType,
+      fileName: book.title,
+    );
+    return InkWell(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => BookDetailScreen(book: book)),
+      ),
+      child: Row(
+        children: [
+          BookCoverWidget(
+            thumbnail: book.thumbnail,
+            fileType: fileType,
+            width: 60,
+            height: 80,
           ),
-        ),
-      ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  book.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  book.author,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -8,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:app/features/book/book_detail_notifier.dart';
+import 'package:app/features/book/book_detail_provider.dart';
+import 'package:app/features/book/book_detail_screen.dart';
 import 'package:app/features/library/book_model.dart';
 import 'package:app/features/library/library_notifier.dart';
 import 'package:app/features/library/library_provider.dart';
@@ -40,9 +43,14 @@ class _FakeNotifier extends LibraryNotifier {
   void emit(LibraryState s) => state = s;
 }
 
+class _FakeDetailNotifier extends BookDetailNotifier {
+  _FakeDetailNotifier() : super(dio: Dio(), baseUrl: 'http://test');
+}
+
 Widget _wrap(_FakeNotifier notifier) => ProviderScope(
       overrides: [
         libraryProvider.overrideWith((_) => notifier),
+        bookDetailProvider.overrideWith((_) => _FakeDetailNotifier()),
       ],
       child: const MaterialApp(home: LibraryScreen()),
     );
@@ -94,6 +102,32 @@ void main() {
       await tester.pump();
 
       expect(find.byKey(const Key('library_empty')), findsOneWidget);
+    });
+
+    testWidgets('그리드 아이템 탭 시 BookDetailScreen으로 이동한다', (tester) async {
+      await tester.pumpWidget(_wrap(notifier));
+      notifier.emit(const LibraryLoaded(_books, hasMore: false));
+      await tester.pump();
+
+      // 그리드 아이템 커버 영역(InkWell 상단)을 탭한다 — 타이틀 텍스트는 viewport 밖에 위치할 수 있음
+      await tester.tap(find.byType(InkWell).first);
+      await tester.pumpAndSettle();
+
+      expect(find.text('책 상세'), findsOneWidget);
+    });
+
+    testWidgets('리스트 아이템 탭 시 BookDetailScreen으로 이동한다', (tester) async {
+      await tester.pumpWidget(_wrap(notifier));
+      notifier.emit(const LibraryLoaded(_books, hasMore: false));
+      await tester.pump();
+
+      await tester.tap(find.byKey(const Key('library_toggle_view')));
+      await tester.pump();
+
+      await tester.tap(find.text('채식주의자'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('책 상세'), findsOneWidget);
     });
 
     testWidgets('스크롤이 끝에 닿으면 loadMore가 호출된다', (tester) async {

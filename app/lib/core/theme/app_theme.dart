@@ -12,36 +12,36 @@ class AppTheme {
   AppTheme._();
 
   static final ThemeData light = ThemeData(
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: AppColors.light.background,
-        colorScheme: ColorScheme.light(
-          surface: AppColors.light.surface,
-          primary: AppColors.light.accent,
-          onPrimary: Colors.white,
-          secondary: AppColors.light.secondary,
-        ),
-        textTheme: const TextTheme(
-          titleLarge: AppTextStyles.title,
-          bodyMedium: AppTextStyles.body,
-          bodySmall: AppTextStyles.caption,
-        ),
-        fontFamily: 'Pretendard',
-      );
+    brightness: Brightness.light,
+    scaffoldBackgroundColor: AppColors.light.background,
+    colorScheme: ColorScheme.light(
+      surface: AppColors.light.surface,
+      primary: AppColors.light.accent,
+      onPrimary: Colors.white,
+      secondary: AppColors.light.secondary,
+    ),
+    textTheme: const TextTheme(
+      titleLarge: AppTextStyles.title,
+      bodyMedium: AppTextStyles.body,
+      bodySmall: AppTextStyles.caption,
+    ),
+    fontFamily: 'Pretendard',
+  );
 
   static final ThemeData dark = ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: AppColors.dark.background,
-        colorScheme: ColorScheme.dark(
-          surface: AppColors.dark.surface,
-          primary: AppColors.dark.accent,
-          onPrimary: Colors.white,
-          secondary: AppColors.dark.secondary,
-        ),
-        textTheme: const TextTheme(
-          titleLarge: AppTextStyles.title,
-          bodyMedium: AppTextStyles.body,
-          bodySmall: AppTextStyles.caption,
-        ),
-        fontFamily: 'Pretendard',
-      );
+    brightness: Brightness.dark,
+    scaffoldBackgroundColor: AppColors.dark.background,
+    colorScheme: ColorScheme.dark(
+      surface: AppColors.dark.surface,
+      primary: AppColors.dark.accent,
+      onPrimary: Colors.white,
+      secondary: AppColors.dark.secondary,
+    ),
+    textTheme: const TextTheme(
+      titleLarge: AppTextStyles.title,
+      bodyMedium: AppTextStyles.body,
+      bodySmall: AppTextStyles.caption,
+    ),
+    fontFamily: 'Pretendard',
+  );
 }

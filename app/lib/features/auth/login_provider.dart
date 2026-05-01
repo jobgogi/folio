@@ -9,7 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/storage_providers.dart';
 import 'login_notifier.dart';
 
-final loginProvider = StateNotifierProvider<LoginNotifier, LoginState>((ref) {
+final loginProvider =
+    StateNotifierProvider.autoDispose<LoginNotifier, LoginState>((ref) {
   final baseUrl =
       ref.watch(savedServerAddressProvider).valueOrNull ?? '';
   return LoginNotifier(dio: Dio(), baseUrl: baseUrl);

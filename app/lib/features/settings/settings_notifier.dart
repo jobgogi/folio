@@ -94,7 +94,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   /// @description POST /v1/sync 호출로 라이브러리를 동기화한다.
   /// @returns void
   Future<void> sync() async {
-    final profile = currentProfile;
+    final profile = _currentProfile;
     if (profile == null) return;
 
     state = SettingsSyncing(profile);
@@ -123,9 +123,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     state = const SettingsLoggedOut();
   }
 
-  /// @description 현재 상태에서 프로필을 추출한다. 프로필이 없는 상태이면 null을 반환한다.
-  /// @returns [SettingsProfile?] 현재 프로필, 없으면 null
-  SettingsProfile? get currentProfile {
+  SettingsProfile? get _currentProfile {
     final s = state;
     if (s is SettingsLoaded) return s.profile;
     if (s is SettingsSyncing) return s.profile;

@@ -10,7 +10,7 @@ import '../../core/providers/storage_providers.dart';
 import 'library_notifier.dart';
 
 final libraryProvider =
-    StateNotifierProvider<LibraryNotifier, LibraryState>((ref) {
+    StateNotifierProvider.autoDispose<LibraryNotifier, LibraryState>((ref) {
   final baseUrl =
       ref.watch(savedServerAddressProvider).valueOrNull ?? '';
   return LibraryNotifier(dio: Dio(), baseUrl: baseUrl);
